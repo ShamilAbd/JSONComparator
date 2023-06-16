@@ -1,6 +1,6 @@
 {
-  "firstFilePath" : "jsonForCompare/test1.json",
-  "secondFilePath" : "jsonForCompare/test2.json",
+  "firstFilePath" : "C:\\Work\\Java\\Projects\\JSONComparator\\jsonForCompare\\test.json",
+  "secondFilePath" : "C:/Work/Java/Projects/JSONComparator/jsonForCompare/test2.json",
   "compareObjectListPath" : "Values",
   "compareKeys" : ["sNm", "sKey", "dPeriodTo"],
   "JSONComparatorVersion" : 1

@@ -2,38 +2,37 @@ package com.shamilabd;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class JSONComparator {
-    private List<JSONObject> firstList = new ArrayList<>();
-    private List<JSONObject> secondList = new ArrayList<>();
-    private List<JSONObject> matchedResult = new ArrayList<>();
-    private List<JSONObject> halfMatchedResult = new ArrayList<>();
-    private List<JSONObject> notMatchedResult = new ArrayList<>();
-    private List<JSONObject> firstListStock = new ArrayList<>();
-    private List<JSONObject> secondListStock = new ArrayList<>();
+    private final Configuration configuration;
+    private final List<JSONObject> firstList = new ArrayList<>();
+    private final List<JSONObject> secondList = new ArrayList<>();
+    private final List<JSONObject> matchedResult = new ArrayList<>();
+    private final List<JSONObject> halfMatchedResult = new ArrayList<>();
+    private final List<JSONObject> notMatchedResult = new ArrayList<>();
+    private final List<JSONObject> firstListStock = new ArrayList<>();
+    private final List<JSONObject> secondListStock = new ArrayList<>();
     private int firstListSize;
     private int secondListSize;
     private boolean isFilesSwapped;
 
     public static void main(String[] args) {
-        // TODO: 1. Дополнить config.json файлом.
-        // TODO: 2. Получать пути к файлам из config.json
-        // TODO: 3. Получать список объектов
         // TODO: 4. Получать список ключей для сравнения
         // TODO: 5. Сохранять результат в файл.
         // TODO: 6. Добавить дату и время сравнения, md5 сумм файлов.
+        // TODO: 7. потом доделать функционал по поиску дублей в файлах
 
         JSONComparator comparator = new JSONComparator();
-        comparator.fillFirstJSONList("jsonForCompare/test2.json");
-        comparator.fillSecondJSONList("jsonForCompare/test.json");
+        comparator.fillFirstJSONList();
+        comparator.fillSecondJSONList();
         comparator.compare();
         comparator.printResult();
+    }
+
+    public JSONComparator() {
+        configuration = new Configuration();
     }
 
     private void compare() {
@@ -47,8 +46,8 @@ public class JSONComparator {
 
     /**
      * Метод позволяет сравнить 2 коллекции JSONObject на предмет совпадения по указанным полям в настройках.
-     * @param mainList
-     * @param compareList
+     * @param mainList Основной список для сравнения
+     * @param compareList Список объектов, которые будут сравниваться с основным списком
      */
     private void compareTwoList(List<JSONObject> mainList, List<JSONObject> compareList) {
         for (JSONObject mainObj : mainList) {
@@ -135,94 +134,70 @@ public class JSONComparator {
             System.out.println("\t------------------------------");
             System.out.println("\tЭлементы меньшего списка, для которых не нашлось соответствий:");
             for (JSONObject object : secondListStock) {
-                System.out.println(++rowNumber + ") sKey:" + object.get("sKey") + ", sNumberT1: " + object.get("sNumberT1") + ", sNm: \"" + object.get("sNm") + "\"");
+                System.out.println(++rowNumber + ") sKey:" + object.get("sKey") + ", sNumberT1: " + object.get("sNumberT1") + ", period: " + object.get("dPeriodTo") + ", sNm: \"" + object.get("sNm") + "\"");
             }
         }
     }
 
-    private String getNullableParam(JSONObject object, String name) {
+    private String getNullableParam(JSONObject json, String key) {
         String value; // TODO: тоже надо переписать на соответствующий тип
 
-        if (object.isNull(name)) {
+        if (json.isNull(key)) {
             value = "";
         } else {
-            value = (String) object.get(name);
+            value = (String) json.get(key);
         }
 
         return value;
     }
 
-    private void fillFirstJSONList(String path) {
-        fillJSONList(firstList, path);
+    private void fillFirstJSONList() {
+        fillJSONList(configuration.getFirstFilePath(), configuration.getCompareObjectListPath(), firstList);
         firstListSize = firstList.size();
     }
 
-    private void fillSecondJSONList(String path) {
-        fillJSONList(secondList, path);
+    private void fillSecondJSONList() {
+        fillJSONList(configuration.getSecondFilePath(), configuration.getCompareObjectListPath(), secondList);
         secondListSize = secondList.size();
     }
 
-    private void fillJSONList(List<JSONObject> list, String path) {
-        String jsonText = getJSONText(path);
+    public void fillJSONList(String jsonFilePath, String pathToJSONArray, List<JSONObject> listForJSONObjects) {
+        String jsonText = Utils.readFile(jsonFilePath);
         JSONObject rootJSON = new JSONObject(jsonText);
-        JSONArray values = (JSONArray) rootJSON.get("Values");
-
+        JSONArray values = getJSONArrayByPath(pathToJSONArray, rootJSON);
         for (Object value : values) {
-            list.add((JSONObject) value);
+            listForJSONObjects.add((JSONObject) value);
         }
     }
 
-    private String getJSONText(String path) {
-        StringBuilder builder = new StringBuilder();
+    private JSONArray getJSONArrayByPath(String pathToJSONArray, JSONObject json) {
+        JSONArray values = null;
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line + "\n");
+        if (pathToJSONArray == null || pathToJSONArray.equals("")) {
+            throw new RuntimeException("Не указан ключ объекта (config.json -> compareObjectListPath), внутри которого лежит сравниваемый массив.");
+        } else if (pathToJSONArray.equals(".")) {
+            throw new RuntimeException("Ключ объекта (config.json -> compareObjectListPath) не может равняться точке.");
+        } else if (!pathToJSONArray.contains(".")) {
+            if (!json.has(pathToJSONArray)) {
+                throw new RuntimeException("Ключ \"" + pathToJSONArray + "\" не найден в файле json.");
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+            try {
+                values = (JSONArray) json.get(pathToJSONArray);
+            } catch (ClassCastException e) { // TODO: compareObjectListPath переименовать на ...Array...
+                throw new RuntimeException("В качестве пути к массиву объектов (config.json -> compareObjectListPath) указан ключ, не содержащий массив."); // TODO: (config.json -> compareObjectListPath) вынести в константу
+            }
+        } else {
+            String[] pathsToJSONArray = pathToJSONArray.split("\\.");
+            JSONObject subJson = json;
 
-        return builder.toString();
-    }
-
-    // TODO: потом доделать функционал по поиску дублей
-    private List<JSONObject> copyes = new ArrayList<>();
-
-    private void findCopy(List<JSONObject> mainList) {
-        List<JSONObject> compareList = new ArrayList<>(mainList);
-
-        for (JSONObject mainObj : mainList) {
-            String sNm = (String) mainObj.get("sNm");
-            String sKey = (String) mainObj.get("sKey");
-            String dPeriodTo = getNullableParam(mainObj, "dPeriodTo");
-
-            if (compareList.size() > 0) {
-                compareList.remove(0); // Убираем себя
-
-                for (JSONObject compareObj : compareList) {
-                    boolean nameEquals = compareObj.get("sNm").equals(sNm);
-                    boolean keyEquals = compareObj.get("sKey").equals(sKey);
-                    boolean periodEquals = getNullableParam(compareObj, "dPeriodTo").equals(dPeriodTo);
-
-                    if (nameEquals && keyEquals && periodEquals) {
-                        copyes.add(compareObj);
-                        compareList.remove(compareObj); // убрать из списка, т.к. уже нашли его пару
-                        break; // выйти из внутреннего цикла
-                    }
+            for (int i = 0; i < pathsToJSONArray.length; i++) {
+                if (i != pathsToJSONArray.length - 1) {
+                    subJson = (JSONObject) subJson.get(pathsToJSONArray[i]);
+                } else {
+                    values = (JSONArray) subJson.get(pathsToJSONArray[i]);
                 }
             }
         }
-
-        if (copyes.size() > 0) {
-            int rowNumber = 0;
-            System.out.println("\tКопии элеметнов:");
-            for (JSONObject object : copyes) {
-                System.out.println(++rowNumber + ") sKey:" + object.get("sKey") + ", sNm: \"" + object.get("sNm") + "\"");
-            }
-        }
+        return values;
     }
 }
