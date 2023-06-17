@@ -14,6 +14,11 @@ public class Configuration {
     private final String secondFilePath;
     private final String compareObjectListPath;
     private final Integer jsonComparatorVersion;
+    private final Boolean nullAsNotEqual;
+    private final Boolean showFullyMatched;
+    private final Boolean showPartialMatched;
+    private final Boolean showNotMatched;
+    private final Boolean showOnlyCompareKeys;
     private final int currentJsonComparatorVersion = 1;
     private final List<String> compareKeys = new ArrayList<>();
 
@@ -31,9 +36,14 @@ public class Configuration {
             jsonComparatorVersion = null;
         }
         checkVersionCompatibility(jsonComparatorVersion);
-        firstFilePath = (String) rootJSON.get("firstFilePath");
-        secondFilePath = (String) rootJSON.get("secondFilePath");
-        compareObjectListPath = (String) rootJSON.get("compareObjectListPath");
+        firstFilePath = rootJSON.getString("firstFilePath");
+        secondFilePath = rootJSON.getString("secondFilePath");
+        compareObjectListPath = rootJSON.getString("compareObjectListPath");
+        nullAsNotEqual = rootJSON.getBoolean("nullAsNotEqual");
+        showFullyMatched = rootJSON.getBoolean("showFullyMatched");
+        showPartialMatched = rootJSON.getBoolean("showPartialMatched");
+        showNotMatched = rootJSON.getBoolean("showNotMatched");
+        showOnlyCompareKeys = rootJSON.getBoolean("showOnlyCompareKeys");
 
         JSONArray values = (JSONArray) rootJSON.get("compareKeys");
         for (Object value : values) {
@@ -53,7 +63,7 @@ public class Configuration {
         }
     }
 
-    private void createConfigExample(String path) {
+    private void createConfigExample(String path) { // TODO: обновить перед релизом
         String text = """
                 {
                   "firstFilePath" : "C:\\\\Work\\\\test.json or C:/Work/test.json or test.json - for relative path",
@@ -89,6 +99,30 @@ public class Configuration {
         return List.copyOf(compareKeys);
     }
 
+    public Boolean getNullAsNotEqual() {
+        return nullAsNotEqual;
+    }
+
+    public Boolean getShowFullyMatched() {
+        return showFullyMatched;
+    }
+
+    public Boolean getShowPartialMatched() {
+        return showPartialMatched;
+    }
+
+    public Boolean getShowNotMatched() {
+        return showNotMatched;
+    }
+
+    public Boolean getShowOnlyCompareKeys() {
+        return showOnlyCompareKeys;
+    }
+
+    public int getCurrentJsonComparatorVersion() {
+        return currentJsonComparatorVersion;
+    }
+
     public static void main(String[] args) {
         // For simple test
         Configuration configuration = new Configuration();
@@ -97,6 +131,11 @@ public class Configuration {
         System.out.println(configuration.getSecondFilePath());
         System.out.println(configuration.getCompareObjectListPath());
         System.out.println(configuration.getCompareKeys());
+        System.out.println(configuration.getNullAsNotEqual());
+        System.out.println(configuration.getShowFullyMatched());
+        System.out.println(configuration.getShowPartialMatched());
+        System.out.println(configuration.getShowNotMatched());
+        System.out.println(configuration.getShowOnlyCompareKeys());
         System.out.println(configuration.getJsonComparatorVersion());
     }
 }

@@ -2,6 +2,9 @@ package com.shamilabd;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,16 +22,127 @@ public class JSONComparator {
     private boolean isFilesSwapped;
 
     public static void main(String[] args) {
-        // TODO: 4. Получать список ключей для сравнения
-        // TODO: 5. Сохранять результат в файл.
         // TODO: 6. Добавить дату и время сравнения, md5 сумм файлов.
         // TODO: 7. потом доделать функционал по поиску дублей в файлах
+        // TODO: UI на свинге
+        // TODO: поправить вывод результата сравнения
+        // TODO: добавить в имя файла таймстемп
 
         JSONComparator comparator = new JSONComparator();
         comparator.fillFirstJSONList();
         comparator.fillSecondJSONList();
         comparator.compare();
-        comparator.printResult();
+        comparator.saveInHTML();
+    }
+
+    private void saveInHTML() {
+        String htmlText = """
+                <!Doctype html>
+                <html lang="ru">
+                   <head>
+                     <title>JSONComparator</title>
+                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                     <meta name="Author" content="Shamil Abdullin">
+                     <link rel="stylesheet" type="text/css" href="style.css">
+                   </head>
+                   <body>
+                     <header class="header-style">
+                       <h2>Сравнение JSON файлов</h2>
+                       <small>Файлы:<br>\n""" + configuration.getFirstFilePath() + "<br>\n" + configuration.getSecondFilePath() + """
+                       </small>
+                     </header>
+                     <div class="main-content">""" + printResult() + """
+                     </div>
+                   </body>
+                </html>
+                """;
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("CompareResult.html"))) {
+            writer.write(htmlText);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String printResult() {
+        String newLineTag = "<br>\r\n";
+        StringBuilder builder = new StringBuilder();
+        int rowNumber = 0;
+        builder.append("<div class=\"files-statistic\">" + newLineTag);
+        builder.append("Результаты:" + newLineTag);
+        builder.append("Элементов в 1 файле: " + firstListSize + "" + newLineTag);
+        builder.append("Элементов в 2 файле: " + secondListSize + "" + newLineTag);
+
+        if (isFilesSwapped) {
+            builder.append("Во втором файле больше объектов чем в первом, потому будем сравнивать второй файл с первым." + newLineTag);
+        }
+        builder.append("</div>\r\n");
+
+        if (configuration.getShowFullyMatched() && matchedResult.size() > 0) {
+            builder.append("<div class=\"fully-matched\">" + newLineTag);
+            builder.append("Список полностью совпавших элементов:" + newLineTag);
+            for (JSONObject object : matchedResult) {
+//                builder.append(++rowNumber + ") sKey:" + object.get("sKey") + ", sNumberT1: " + object.get("sNumberT1") + ", sNm: \"" + object.get("sNm") + "\"" + newLineTag);
+                builder.append(getObjectRepresentation());
+            }
+            builder.append("</div>\r\n");
+        }
+
+        if (configuration.getShowPartialMatched() && halfMatchedResult.size() > 0) {
+            builder.append("<div class=\"partial-matched\">" + newLineTag);
+            builder.append("Список частично совпавших элементов:" + newLineTag);
+            for (JSONObject object : halfMatchedResult) {
+                builder.append(++rowNumber + ") sKey:" + object.get("sKey") + ", sNumberT1: " + object.get("sNumberT1") + ", sNm: \"" + object.get("sNm") + "\"" + newLineTag);
+            }
+            builder.append("</div>\r\n");
+        }
+
+        if (configuration.getShowNotMatched() && notMatchedResult.size() > 0) {
+            builder.append("<div class=\"not-matched\">" + newLineTag);
+            builder.append("Остальные элементы бОльшого файла:" + newLineTag);
+            for (JSONObject object : notMatchedResult) {
+                builder.append(++rowNumber + ") sKey:" + object.get("sKey") + ", sNumberT1: " + object.get("sNumberT1") + ", sNm: \"" + object.get("sNm") + "\"" + newLineTag);
+            }
+            builder.append("</div>\r\n");
+        }
+
+        if (configuration.getShowNotMatched() && firstListStock.size() > 0) {
+            builder.append("<div class=\"not-matched-1list\">" + newLineTag);
+            builder.append("Элементы бОльшого списка, для которых не осталось объектов для сравнения:" + newLineTag);
+            for (JSONObject object : firstListStock) {
+                builder.append(++rowNumber + ") sKey:" + object.get("sKey") + ", sNumberT1: " + object.get("sNumberT1") + ", sNm: \"" + object.get("sNm") + "\"" + newLineTag);
+            }
+            builder.append("</div>\r\n");
+        }
+
+        if (configuration.getShowNotMatched() && secondListStock.size() > 0) {
+            builder.append("<div class=\"not-matched-2list\">" + newLineTag);
+            builder.append("Элементы меньшего списка, для которых не нашлось соответствий:" + newLineTag);
+            for (JSONObject object : secondListStock) {
+                builder.append(++rowNumber + ") sKey:" + object.get("sKey") + ", sNumberT1: " + object.get("sNumberT1") + ", sNm: \"" + object.get("sNm") + "\"" + newLineTag);
+            }
+            builder.append("</div>\r\n");
+        }
+        return builder.toString();
+    }
+
+    private String getObjectRepresentation() {
+        if (configuration.getShowOnlyCompareKeys()) {
+            return getObjectRepresentationOnlyCompareKeys();
+        } else {
+            return getFullObjectRepresentationView();
+        }
+    }
+
+    private String getObjectRepresentationOnlyCompareKeys() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Ok"); // TODO: доделать
+        return builder.toString();
+    }
+
+    private String getFullObjectRepresentationView() {
+        StringBuilder builder = new StringBuilder();
+        // TODO: доделать
+        return builder.toString();
     }
 
     public JSONComparator() {
@@ -46,40 +160,47 @@ public class JSONComparator {
 
     /**
      * Метод позволяет сравнить 2 коллекции JSONObject на предмет совпадения по указанным полям в настройках.
-     * @param mainList Основной список для сравнения
+     *
+     * @param mainList    Основной список для сравнения
      * @param compareList Список объектов, которые будут сравниваться с основным списком
      */
     private void compareTwoList(List<JSONObject> mainList, List<JSONObject> compareList) {
+        boolean nullAsNotEqual = configuration.getNullAsNotEqual();
+        boolean fullEquals = false;
+        boolean halfEquals = false;
         for (JSONObject mainObj : mainList) {
-            String sNm = (String) mainObj.get("sNm");
-            String sKey = (String) mainObj.get("sKey");
-            String sNumberT1 = getNullableParam(mainObj, "sNumberT1");
-//            String dPeriodTo = getNullableParam(mainObj, "dPeriodTo");
-
             if (compareList.size() == 0) {
                 firstListStock.add(mainObj);
                 continue;
             }
 
-            boolean notMatched = true;
             for (JSONObject compareObj : compareList) {
-                boolean nameEquals = compareObj.get("sNm").equals(sNm);
-                boolean keyEquals = compareObj.get("sKey").equals(sKey);
-//                boolean periodEquals = getNullableParam(compareObj, "dPeriodTo").equals(dPeriodTo);
-                String sNumberT1Compare = getNullableParam(compareObj, "sNumberT1");
-
-                if (nameEquals && keyEquals) { //  && periodEquals
-                    if (sNumberT1.equals(sNumberT1Compare)) {
-                        matchedResult.add(compareObj);
+                fullEquals = true;
+                halfEquals = false;
+                for (String key : configuration.getCompareKeys()) {
+                    if (nullAsNotEqual && (mainObj.isNull(key) || compareObj.isNull(key))) {
+                        fullEquals = false;
+                        continue;
+                    } else if (mainObj.get(key).equals(compareObj.get(key))) {
+                        if (!halfEquals) {
+                            halfEquals = true;
+                        }
                     } else {
-                        halfMatchedResult.add(compareObj);
+                        fullEquals = false;
                     }
-                    notMatched = false;
-                    compareList.remove(compareObj); // убрать из списка, т.к. уже нашли его пару
-                    break; // выйти из внутреннего цикла
+                }
+
+                if (fullEquals || halfEquals) {
+                    compareList.remove(compareObj);
+                    break;
                 }
             }
-            if (notMatched) {
+
+            if (fullEquals) {
+                matchedResult.add(mainObj);
+            } else if (halfEquals) {
+                halfMatchedResult.add(mainObj);
+            } else {
                 notMatchedResult.add(mainObj);
             }
         }
@@ -87,68 +208,6 @@ public class JSONComparator {
         if (compareList.size() > 0) {
             secondListStock.addAll(compareList);
         }
-    }
-
-    private void printResult() {
-        int rowNumber = 0;
-        System.out.println("Элеметнов в 1 файле: " + firstListSize);
-        System.out.println("Элеметнов в 2 файле: " + secondListSize);
-        if (isFilesSwapped) {
-            System.out.println("Во втором файле больше объектов чем в первом, потому будем сравнивать второй файл с первым.");
-        }
-
-        System.out.println();
-
-        if (matchedResult.size() > 0) {
-            System.out.println("\tСписок полностью совпавших элементов:");
-            for (JSONObject object : matchedResult) {
-                System.out.println(++rowNumber + ") sKey:" + object.get("sKey") + ", sNumberT1: " + object.get("sNumberT1") + ", sNm: \"" + object.get("sNm") + "\"");
-            }
-        }
-
-        if (halfMatchedResult.size() > 0) {
-            System.out.println("\t------------------------------");
-            System.out.println("\tСписок частично совпавших элементов:");
-            for (JSONObject object : halfMatchedResult) {
-                System.out.println(++rowNumber + ") sKey:" + object.get("sKey") + ", sNumberT1: " + object.get("sNumberT1") + ", sNm: \"" + object.get("sNm") + "\"");
-            }
-        }
-
-        if (notMatchedResult.size() > 0) {
-            System.out.println("\t------------------------------");
-            System.out.println("\tОстальные элементы бОльшого файла:");
-            for (JSONObject object : notMatchedResult) {
-                System.out.println(++rowNumber + ") sKey:" + object.get("sKey") + ", sNumberT1: " + object.get("sNumberT1") + ", sNm: \"" + object.get("sNm") + "\"");
-            }
-        }
-
-        if (firstListStock.size() > 0) {
-            System.out.println("\t------------------------------");
-            System.out.println("\tЭлементы бОльшого списка, для которых не осталось объектов для сравнения:");
-            for (JSONObject object : firstListStock) {
-                System.out.println(++rowNumber + ") sKey:" + object.get("sKey") + ", sNumberT1: " + object.get("sNumberT1") + ", sNm: \"" + object.get("sNm") + "\"");
-            }
-        }
-
-        if (secondListStock.size() > 0) {
-            System.out.println("\t------------------------------");
-            System.out.println("\tЭлементы меньшего списка, для которых не нашлось соответствий:");
-            for (JSONObject object : secondListStock) {
-                System.out.println(++rowNumber + ") sKey:" + object.get("sKey") + ", sNumberT1: " + object.get("sNumberT1") + ", period: " + object.get("dPeriodTo") + ", sNm: \"" + object.get("sNm") + "\"");
-            }
-        }
-    }
-
-    private String getNullableParam(JSONObject json, String key) {
-        String value; // TODO: тоже надо переписать на соответствующий тип
-
-        if (json.isNull(key)) {
-            value = "";
-        } else {
-            value = (String) json.get(key);
-        }
-
-        return value;
     }
 
     private void fillFirstJSONList() {
