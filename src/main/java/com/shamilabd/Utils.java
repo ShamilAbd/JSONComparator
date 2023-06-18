@@ -1,9 +1,9 @@
 package com.shamilabd;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import org.apache.commons.codec.digest.DigestUtils;
+
+import java.awt.*;
+import java.io.*;
 
 public class Utils {
 
@@ -22,5 +22,18 @@ public class Utils {
         }
 
         return builder.toString();
+    }
+
+    public static String getMD5(String input) {
+        return DigestUtils.md5Hex(input);
+    }
+
+    public static void openFileInSystem(String filePath) {
+        File file = new File(filePath);
+        try {
+            Desktop.getDesktop().open(file);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -10,57 +10,29 @@ import java.util.List;
 
 public class Configuration {
     // TODO: в конфиг добавить флаги какие данные будем выводить в отчет
-    private final String firstFilePath;
-    private final String secondFilePath;
-    private final String compareObjectListPath;
-    private final Integer jsonComparatorVersion;
-    private final Boolean nullAsNotEqual;
-    private final Boolean showFullyMatched;
-    private final Boolean showPartialMatched;
-    private final Boolean showNotMatched;
-    private final Boolean showOnlyCompareKeys;
+    private final JSONObject rootJSON;
+    private String firstFilePath;
+    private String secondFilePath;
+    private String compareObjectListPath;
+    private Integer jsonComparatorVersion;
+    private Boolean nullAsNotEqual;
+    private Boolean showFullyMatched;
+    private Boolean showPartialMatched;
+    private Boolean showNotMatched;
+    private Boolean showOnlyCompareKeys;
+    private Boolean openResultAfterCompare;
     private final int currentJsonComparatorVersion = 1;
     private final List<String> compareKeys = new ArrayList<>();
 
     public Configuration() {
-        String configFilePath = "config.json";
-        File config = new File(configFilePath);
+        File config = new File("config.json");
         if (!config.exists()) {
             createConfigExample(config.getAbsolutePath());
+            throw new RuntimeException("В папке был создан config.json файл, заполните его и запустите программу снова.");
         }
-        String jsonText = Utils.readFile(config.getAbsolutePath());
-        JSONObject rootJSON = new JSONObject(jsonText);
-        if (rootJSON.has("JSONComparatorVersion")) {
-            jsonComparatorVersion = (Integer) rootJSON.get("JSONComparatorVersion");
-        } else {
-            jsonComparatorVersion = null;
-        }
-        checkVersionCompatibility(jsonComparatorVersion);
-        firstFilePath = rootJSON.getString("firstFilePath");
-        secondFilePath = rootJSON.getString("secondFilePath");
-        compareObjectListPath = rootJSON.getString("compareObjectListPath");
-        nullAsNotEqual = rootJSON.getBoolean("nullAsNotEqual");
-        showFullyMatched = rootJSON.getBoolean("showFullyMatched");
-        showPartialMatched = rootJSON.getBoolean("showPartialMatched");
-        showNotMatched = rootJSON.getBoolean("showNotMatched");
-        showOnlyCompareKeys = rootJSON.getBoolean("showOnlyCompareKeys");
-
-        JSONArray values = (JSONArray) rootJSON.get("compareKeys");
-        for (Object value : values) {
-            compareKeys.add((String) value);
-        }
-    }
-
-    private void checkVersionCompatibility(Integer versionFromFile) {
-        if (versionFromFile == null) {
-            throw new RuntimeException("В файле config.json не заполнен ключ \"JSONComparatorVersion\".");
-        }
-
-        if (versionFromFile != currentJsonComparatorVersion) {
-            throw new RuntimeException("Версия config.json не соответствует версии программы:\n"
-                    + "Версия программы: " + currentJsonComparatorVersion + "\n"
-                    + "Версия файла: " + versionFromFile);
-        }
+        rootJSON = new JSONObject(Utils.readFile(config.getAbsolutePath()));
+        checkVersionCompatibility();
+        loadParameters();
     }
 
     private void createConfigExample(String path) { // TODO: обновить перед релизом
@@ -76,6 +48,41 @@ public class Configuration {
             writer.write(text);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void checkVersionCompatibility() {
+        if (rootJSON.has("JSONComparatorVersion")) {
+            jsonComparatorVersion = (Integer) rootJSON.get("JSONComparatorVersion");
+        } else {
+            throw new RuntimeException("В файле config.json не заполнен ключ \"JSONComparatorVersion\".");
+        }
+
+        if (jsonComparatorVersion != currentJsonComparatorVersion) {
+            throw new RuntimeException("Версия config.json не соответствует версии программы:\n"
+                    + "Версия программы: " + currentJsonComparatorVersion + "\n"
+                    + "Версия файла: " + jsonComparatorVersion);
+        }
+    }
+
+    private void loadParameters() {
+        loadCompareKeys();
+
+        firstFilePath = rootJSON.getString("firstFilePath");
+        secondFilePath = rootJSON.getString("secondFilePath");
+        compareObjectListPath = rootJSON.getString("compareObjectListPath");
+        nullAsNotEqual = rootJSON.getBoolean("nullAsNotEqual");
+        showFullyMatched = rootJSON.getBoolean("showFullyMatched");
+        showPartialMatched = rootJSON.getBoolean("showPartialMatched");
+        showNotMatched = rootJSON.getBoolean("showNotMatched");
+        showOnlyCompareKeys = rootJSON.getBoolean("showOnlyCompareKeys");
+        openResultAfterCompare = rootJSON.getBoolean("openResultAfterCompare");
+    }
+
+    private void loadCompareKeys() {
+        JSONArray values = (JSONArray) rootJSON.get("compareKeys");
+        for (Object value : values) {
+            compareKeys.add((String) value);
         }
     }
 
@@ -119,8 +126,8 @@ public class Configuration {
         return showOnlyCompareKeys;
     }
 
-    public int getCurrentJsonComparatorVersion() {
-        return currentJsonComparatorVersion;
+    public Boolean getOpenResultAfterCompare() {
+        return openResultAfterCompare;
     }
 
     public static void main(String[] args) {
@@ -136,6 +143,7 @@ public class Configuration {
         System.out.println(configuration.getShowPartialMatched());
         System.out.println(configuration.getShowNotMatched());
         System.out.println(configuration.getShowOnlyCompareKeys());
+        System.out.println(configuration.getOpenResultAfterCompare());
         System.out.println(configuration.getJsonComparatorVersion());
     }
 }
