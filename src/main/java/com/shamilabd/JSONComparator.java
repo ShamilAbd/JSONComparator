@@ -7,9 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 public class JSONComparator {
     private final Configuration configuration;
@@ -44,8 +42,33 @@ public class JSONComparator {
         comparator.fillFirstJSONList();
         comparator.fillSecondJSONList();
         comparator.compare();
-        comparator.saveInHTML();
-        comparator.openHTMLInSystem();
+
+        System.out.println(comparator.toStringByCompareKeys(comparator.firstList.get(0), 2));
+        //comparator.saveInHTML();
+        //comparator.openHTMLInSystem();
+    }
+
+    private String toStringByCompareKeys(JSONObject object, int indentFactor) {
+        Map<String, Object> originalElements = object.toMap();
+        Map<String, Object> newElements = new HashMap<>();
+        List<String> keys = configuration.getCompareKeys();
+        for (Map.Entry<String, Object> entry : originalElements.entrySet()) {
+            for (String key : keys) {
+                if (key.equals(entry.getKey())) {
+                    // TODO: решить проблему с null в значении. Он не попадает.
+                    System.out.println(entry.getKey() + " : " + entry.getValue());
+                    Object value = entry.getValue();
+                    newElements.put(entry.getKey(), value);
+                }
+            }
+        }
+        System.out.println(newElements);
+        JSONObject jsonObject = new JSONObject(newElements);
+//        jsonObject.put("dPeriodTo", (Object) null);
+//        jsonObject.append("dPeriodTo", (Object) null);
+//        jsonObject.accumulate("dPeriodTo", (Object) null);
+//        jsonObject.putOnce("dPeriodTo", (Object) null);
+        return jsonObject.toString(indentFactor);
     }
 
     private void fillFirstJSONList() {
@@ -173,12 +196,12 @@ public class JSONComparator {
                      <header class="header-style">
                        <h2>Сравнение JSON файлов</h2>
                        <p>Файлы:<br>\n""" + firstJSON.getFileName() + "<br>\n"
-                        + secondJSON.getFileName() + """
-                       </p>
-                     </header>
-                     <div class="main-content">""" + printResult() + """
-                     </div>
-                     <div class="date-time-comparing"><p>Дата и время сравнения: """ + getCurrentDateTime() + """
+                + secondJSON.getFileName() + """
+                  </p>
+                </header>
+                <div class="main-content">""" + printResult() + """
+                </div>
+                <div class="date-time-comparing"><p>Дата и время сравнения: """ + getCurrentDateTime() + """
                      </p></div>
                    </body>
                 </html>
@@ -201,57 +224,57 @@ public class JSONComparator {
         String newLine = "\r\n";
         StringBuilder builder = new StringBuilder();
         int rowNumber = 0;
-        builder.append("<div class=\"files-statistic\">" + newLine);
-        builder.append("Результаты:" + newLineTag);
-        builder.append("Элементов в 1 файле: " + firstListSize + "" + newLineTag);
-        builder.append("Элементов в 2 файле: " + secondListSize + "" + newLineTag);
+        builder.append("<div class=\"files-statistic\">").append(newLine);
+        builder.append("Результаты:").append(newLineTag);
+        builder.append("Элементов в 1 файле: ").append(firstListSize).append(newLineTag);
+        builder.append("Элементов в 2 файле: ").append(secondListSize).append(newLineTag);
 
         if (isFilesSwapped) {
-            builder.append("Во втором файле больше объектов чем в первом, потому будем сравнивать второй файл с первым." + newLineTag);
+            builder.append("Во втором файле больше объектов чем в первом, потому будем сравнивать второй файл с первым.").append(newLineTag);
         }
         builder.append("</div>\r\n");
 
         if (configuration.getShowFullyMatched() && matchedResult.size() > 0) {
-            builder.append("<div class=\"fully-matched\">" + newLineTag);
-            builder.append("Список полностью совпавших элементов:" + newLineTag);
+            builder.append("<div class=\"fully-matched\">").append(newLineTag);
+            builder.append("Список полностью совпавших элементов:").append(newLineTag);
             for (JSONObject object : matchedResult) {
-                builder.append(++rowNumber + ") " + getObjectRepresentation(object) + "<br>\r\n");
+                builder.append(++rowNumber).append(") ").append(getObjectRepresentation(object)).append("<br>\r\n");
             }
             builder.append("</div>\r\n");
         }
 
         if (configuration.getShowPartialMatched() && halfMatchedResult.size() > 0) {
-            builder.append("<div class=\"partial-matched\">" + newLineTag);
-            builder.append("Список частично совпавших элементов:" + newLineTag);
+            builder.append("<div class=\"partial-matched\">").append(newLineTag);
+            builder.append("Список частично совпавших элементов:").append(newLineTag);
             for (JSONObject object : halfMatchedResult) {
-                builder.append(++rowNumber + ") " + getObjectRepresentation(object) + "<br>\r\n");
+                builder.append(++rowNumber).append(") ").append(getObjectRepresentation(object)).append("<br>\r\n");
             }
             builder.append("</div>\r\n");
         }
 
         if (configuration.getShowNotMatched() && notMatchedResult.size() > 0) {
-            builder.append("<div class=\"not-matched\">" + newLineTag);
-            builder.append("Остальные элементы бОльшого файла:" + newLineTag);
+            builder.append("<div class=\"not-matched\">").append(newLineTag);
+            builder.append("Остальные элементы бОльшого файла:").append(newLineTag);
             for (JSONObject object : notMatchedResult) {
-                builder.append(++rowNumber + ") " + getObjectRepresentation(object) + "<br>\r\n");
+                builder.append(++rowNumber).append(") ").append(getObjectRepresentation(object)).append("<br>\r\n");
             }
             builder.append("</div>\r\n");
         }
 
         if (configuration.getShowNotMatched() && firstListStock.size() > 0) {
-            builder.append("<div class=\"not-matched-1list\">" + newLineTag);
-            builder.append("Элементы бОльшего списка, для которых не осталось объектов для сравнения:" + newLineTag);
+            builder.append("<div class=\"not-matched-1list\">").append(newLineTag);
+            builder.append("Элементы бОльшего списка, для которых не осталось объектов для сравнения:").append(newLineTag);
             for (JSONObject object : firstListStock) {
-                builder.append(++rowNumber + ") " + getObjectRepresentation(object) + "<br>\r\n");
+                builder.append(++rowNumber).append(") ").append(getObjectRepresentation(object)).append("<br>\r\n");
             }
             builder.append("</div>\r\n");
         }
 
         if (configuration.getShowNotMatched() && secondListStock.size() > 0) {
-            builder.append("<div class=\"not-matched-2list\">" + newLineTag);
-            builder.append("Элементы меньшего списка, для которых не нашлось соответствий:" + newLineTag);
+            builder.append("<div class=\"not-matched-2list\">").append(newLineTag);
+            builder.append("Элементы меньшего списка, для которых не нашлось соответствий:").append(newLineTag);
             for (JSONObject object : secondListStock) {
-                builder.append(++rowNumber + ") " + getObjectRepresentation(object) + "<br>\r\n");
+                builder.append(++rowNumber).append(") ").append(getObjectRepresentation(object)).append("<br>\r\n");
             }
             builder.append("</div>\r\n");
         }
@@ -276,9 +299,9 @@ public class JSONComparator {
             // TODO: не работает. Доработать.
             if (isNull) {
                 builder.append("\"" + key + "\" : " + object.get(key));
-            } else if (!isNull && (object.optString(key).equals("true") || object.optString(key).equals("false"))) {
+            } else if ((object.optString(key).equals("true") || object.optString(key).equals("false"))) {
                 builder.append("\"" + key + "\" : " + object.get(key));
-            } else if (!isNull && !object.get(key).equals("")) {
+            } else if (!object.get(key).equals("")) {
                 builder.append("\"" + key + "\" : \"" + object.get(key) + "\"");
             } else {
                 builder.append("\"" + key + "\" : " + object.get(key));
