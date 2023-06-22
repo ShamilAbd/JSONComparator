@@ -1,9 +1,9 @@
 package com.shamilabd;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
 import java.awt.*;
 import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Utils {
 
@@ -24,10 +24,6 @@ public class Utils {
         return builder.toString();
     }
 
-    public static String getMD5(String input) {
-        return DigestUtils.md5Hex(input);
-    }
-
     public static void openFileInSystem(String filePath) {
         File file = new File(filePath);
         try {
@@ -35,5 +31,18 @@ public class Utils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static void saveInFile(String path, String content) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
+            writer.write(content);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static String getCurrentDateTime() {
+        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+        return format.format(new Date());
     }
 }

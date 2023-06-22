@@ -9,11 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Configuration {
-    // TODO: в конфиг добавить флаги какие данные будем выводить в отчет
     private final JSONObject rootJSON;
     private String firstFilePath;
     private String secondFilePath;
-    private String compareObjectListPath;
+    private String compareKeysArrayPath;
     private Integer jsonComparatorVersion;
     private Boolean nullAsNotEqual;
     private Boolean showFullyMatched;
@@ -21,6 +20,9 @@ public class Configuration {
     private Boolean showNotMatched;
     private Boolean showOnlyCompareKeys;
     private Boolean openResultAfterCompare;
+    private Boolean addRowNumber;
+    private Boolean addCommaBetweenObjects;
+    private int leftIndentsInObject;
     private final int currentJsonComparatorVersion = 1;
     private final List<String> compareKeys = new ArrayList<>();
 
@@ -40,7 +42,7 @@ public class Configuration {
                 {
                   "firstFilePath" : "C:\\\\Work\\\\test.json or C:/Work/test.json or test.json - for relative path",
                   "secondFilePath" : "test2.json",
-                  "compareObjectListPath" : "KeyName1.KeyName2.KeyName3",
+                  "compareKeysArrayPath" : "KeyName1.KeyName2.KeyName3",
                   "compareKeys" : ["name", "intValue", "floatValue", "date"],
                   "JSONComparatorVersion" : 1
                 }""";
@@ -70,13 +72,16 @@ public class Configuration {
 
         firstFilePath = rootJSON.getString("firstFilePath");
         secondFilePath = rootJSON.getString("secondFilePath");
-        compareObjectListPath = rootJSON.getString("compareObjectListPath");
+        compareKeysArrayPath = rootJSON.getString("compareKeysArrayPath");
         nullAsNotEqual = rootJSON.getBoolean("nullAsNotEqual");
         showFullyMatched = rootJSON.getBoolean("showFullyMatched");
         showPartialMatched = rootJSON.getBoolean("showPartialMatched");
         showNotMatched = rootJSON.getBoolean("showNotMatched");
         showOnlyCompareKeys = rootJSON.getBoolean("showOnlyCompareKeys");
+        addRowNumber = rootJSON.getBoolean("addRowNumber");
+        addCommaBetweenObjects = rootJSON.getBoolean("addCommaBetweenObjects");
         openResultAfterCompare = rootJSON.getBoolean("openResultAfterCompare");
+        leftIndentsInObject = rootJSON.getInt("leftIndentsInObject");
     }
 
     private void loadCompareKeys() {
@@ -94,8 +99,8 @@ public class Configuration {
         return secondFilePath;
     }
 
-    public String getCompareObjectListPath() {
-        return compareObjectListPath;
+    public String getCompareKeysArrayPath() {
+        return compareKeysArrayPath;
     }
 
     public int getJsonComparatorVersion() {
@@ -130,13 +135,25 @@ public class Configuration {
         return openResultAfterCompare;
     }
 
+    public Boolean getAddRowNumber() {
+        return addRowNumber;
+    }
+
+    public int getLeftIndentsInObject() {
+        return leftIndentsInObject;
+    }
+
+    public Boolean getAddCommaBetweenObjects() {
+        return addCommaBetweenObjects;
+    }
+
     public static void main(String[] args) {
         // For simple test
         Configuration configuration = new Configuration();
 
         System.out.println(configuration.getFirstFilePath());
         System.out.println(configuration.getSecondFilePath());
-        System.out.println(configuration.getCompareObjectListPath());
+        System.out.println(configuration.getCompareKeysArrayPath());
         System.out.println(configuration.getCompareKeys());
         System.out.println(configuration.getNullAsNotEqual());
         System.out.println(configuration.getShowFullyMatched());
@@ -144,6 +161,9 @@ public class Configuration {
         System.out.println(configuration.getShowNotMatched());
         System.out.println(configuration.getShowOnlyCompareKeys());
         System.out.println(configuration.getOpenResultAfterCompare());
+        System.out.println(configuration.getLeftIndentsInObject());
+        System.out.println(configuration.getAddRowNumber());
+        System.out.println(configuration.getAddCommaBetweenObjects());
         System.out.println(configuration.getJsonComparatorVersion());
     }
 }

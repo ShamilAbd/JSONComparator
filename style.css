@@ -1,0 +1,13 @@
+html {
+ background : #fffc78;
+}
+.header-style {
+  
+}
+.main-table {
+ border: 4px solid black;
+}
+.main-table th {
+ text-align: left;
+ vertical-align: top;
+}
