@@ -1,8 +1,8 @@
 {
-  "firstFilePath" : "C:\\Work\\Java\\Projects\\JSONComparator\\jsonForCompare\\test.json",
-  "secondFilePath" : "C:/Work/Java/Projects/JSONComparator/jsonForCompare/test2.json",
+  "firstFilePath" : "D:/Java/Projects/JSONComparator/jsonForCompare/test2.json",
+  "secondFilePath" : "D:/Java/Projects/JSONComparator/jsonForCompare/test.json",
   "compareKeysArrayPath" : "Values",
-  "compareKeys" : ["sNm", "sKey"],
+  "compareKeys" : ["sNm", "sKey", "sNumberT1"],
   "nullAsNotEqual" : true,
   "showFullyMatched" : true,
   "showPartialMatched" : true,

@@ -48,13 +48,15 @@ public class HTML {
                             <table border=3 class="main-table">
                               <tr>
                                 <th scope="col">Список полностью совпавших элементов</th>
-                                <th scope="col">Список частично совпавших элементов</th>
+                                <th scope="col" colspan="2">Список частично совпавших элементов</th>
                                 <th scope="col">Cписок, для которых не осталось объектов для сравнения или не совпавших</th>
                               </tr>
                               <tr>
                                 <th scope="row">""" + printMatched() + """
                                 </th>
-                                <th scope="row">""" + printHalfMatched() + """
+                                <th scope="row">""" + printHalfMatchedFirst() + """
+                                </th>
+                                <th scope="row">""" + printHalfMatchedSecond() + """
                                 </th>
                                 <th scope="row">""" + printNotMatched() + """
                                 </th>
@@ -79,11 +81,20 @@ public class HTML {
         return builder.toString();
     }
 
-    private String printHalfMatched() {
+    private String printHalfMatchedFirst() {
         StringBuilder builder = new StringBuilder();
-        if (configuration.getShowPartialMatched() && comparator.getHalfMatchedResult().size() > 0) {
-            builder.append(getFormattedList(comparator.getHalfMatchedResult(),
-                    "partial-matched"));
+        if (configuration.getShowPartialMatched() && comparator.getHalfMatchedFirst().size() > 0) {
+            builder.append(getFormattedList(comparator.getHalfMatchedFirst(),
+                    "partial-matched1"));
+        }
+        return builder.toString();
+    }
+
+    private String printHalfMatchedSecond() {
+        StringBuilder builder = new StringBuilder();
+        if (configuration.getShowPartialMatched() && comparator.getHalfMatchedSecond().size() > 0) {
+            builder.append(getFormattedList(comparator.getHalfMatchedSecond(),
+                    "partial-matched2"));
         }
         return builder.toString();
     }
@@ -93,14 +104,6 @@ public class HTML {
         if (configuration.getShowNotMatched() && comparator.getNotMatchedResult().size() > 0) {
             builder.append(getFormattedList(comparator.getNotMatchedResult(),
                     "not-matched"));
-        }
-        if (configuration.getShowNotMatched() && comparator.getFirstListStock().size() > 0) {
-            builder.append(getFormattedList(comparator.getFirstListStock(),
-                    "not-matched-1list"));
-        }
-        if (configuration.getShowNotMatched() && comparator.getSecondListStock().size() > 0) {
-            builder.append(getFormattedList(comparator.getSecondListStock(),
-                    "not-matched-2list"));
         }
         return builder.toString();
     }
@@ -129,6 +132,9 @@ public class HTML {
                 + "Краткие сведения:" + newLineTag
                 + "Элементов в 1 файле: " + comparator.getFirstListSize() + newLineTag
                 + "Элементов в 2 файле: " + comparator.getSecondListSize() + newLineTag
+                + "Совпало полностью: " + comparator.getMatchedResult().size() + newLineTag
+                + "Совпало частично: " + comparator.getHalfMatchedFirst().size() + newLineTag
+                + "Не совпало/не с чем сравнивать: " + comparator.getNotMatchedResult().size() + newLineTag
                 + "<p></div>\n";
     }
 

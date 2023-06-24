@@ -1,11 +1,20 @@
 package com.shamilabd;
 
-import java.awt.*;
+import org.json.JSONObject;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 public class Utils {
+
+    public static void print(List<JSONObject> list) {
+        System.out.println("------START----------");
+        for (JSONObject object : list) {
+            System.out.println(object.toString(2));
+        }
+        System.out.println("------END------------");
+    }
 
     public static String readFile(String path) {
         StringBuilder builder = new StringBuilder();
@@ -27,7 +36,7 @@ public class Utils {
     public static void openFileInSystem(String filePath) {
         File file = new File(filePath);
         try {
-            Desktop.getDesktop().open(file);
+            java.awt.Desktop.getDesktop().open(file);
         } catch (IOException e) {
             e.printStackTrace();
         }

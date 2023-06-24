@@ -13,10 +13,9 @@ public class JSONComparator {
     private final List<JSONObject> firstList = new ArrayList<>();
     private final List<JSONObject> secondList = new ArrayList<>();
     private final List<JSONObject> matchedResult = new ArrayList<>();
-    private final List<JSONObject> halfMatchedResult = new ArrayList<>();
+    private final List<JSONObject> halfMatchedFirst = new ArrayList<>();
+    private final List<JSONObject> halfMatchedSecond = new ArrayList<>();
     private final List<JSONObject> notMatchedResult = new ArrayList<>();
-    private final List<JSONObject> firstListStock = new ArrayList<>();
-    private final List<JSONObject> secondListStock = new ArrayList<>();
     private int firstListSize;
     private int secondListSize;
 
@@ -26,7 +25,6 @@ public class JSONComparator {
         secondJSON = Path.of(configuration.getSecondFilePath());
         fillFirstJSONList();
         fillSecondJSONList();
-        // TODO: добавить повторное сравнение для поиска полного совпадения среди частично совпавших и перенос их в полностью совпавшие
         compare();
     }
 
@@ -53,7 +51,6 @@ public class JSONComparator {
         JSONArray values = null;
 
         if (pathToJSONArray == null || pathToJSONArray.equals("")) {
-            // TODO: (config.json -> compareKeysArrayPath) вынести в константу
             throw new RuntimeException("Не указан ключ объекта (config.json -> compareKeysArrayPath), внутри которого лежит сравниваемый массив.");
         } else if (pathToJSONArray.equals(".")) {
             throw new RuntimeException("Ключ объекта (config.json -> compareKeysArrayPath) не может равняться точке.");
@@ -82,63 +79,71 @@ public class JSONComparator {
     }
 
     private void compare() {
-        compareTwoList(firstList, secondList);
-    }
-
-    /**
-     * Метод позволяет сравнить 2 коллекции JSONObject на предмет совпадения по указанным полям в настройках.
-     *
-     * @param mainList    Основной список для сравнения
-     * @param compareList Список объектов, которые будут сравниваться с основным списком
-     */
-    private void compareTwoList(List<JSONObject> mainList, List<JSONObject> compareList) {
+        findFullMatch();
         boolean nullAsNotEqual = configuration.getNullAsNotEqual();
-        boolean fullEquals = false;
-        boolean halfEquals = false;
-        for (JSONObject mainObj : mainList) {
-            if (compareList.size() == 0) {
-                firstListStock.add(mainObj);
-                continue;
+        boolean halfEquals;
+
+        List<JSONObject> firstListCopy = new ArrayList<>(firstList);
+        for (JSONObject mainObj : firstListCopy) {
+            if (secondList.size() == 0) {
+                break;
             }
 
-            for (JSONObject compareObj : compareList) {
-                fullEquals = true;
+            List<JSONObject> secondListCopy = new ArrayList<>(secondList);
+            for (JSONObject compareObj : secondListCopy) {
                 halfEquals = false;
                 for (String key : configuration.getCompareKeys()) {
                     try {
-                        if (nullAsNotEqual && (mainObj.isNull(key) || compareObj.isNull(key))) {
-                            fullEquals = false;
-                            continue;
+                        if (nullAsNotEqual) {
+                            if (!mainObj.isNull(key) && !compareObj.isNull(key) && mainObj.get(key).equals(compareObj.get(key))) {
+                                if (!halfEquals) {
+                                    halfEquals = true;
+                                }
+                            }
                         } else if (mainObj.get(key).equals(compareObj.get(key))) {
                             if (!halfEquals) {
                                 halfEquals = true;
                             }
-                        } else {
-                            fullEquals = false;
                         }
                     } catch (JSONException e) {
                         throw new RuntimeException("В сравниваемых файлах не найден ключ \"" + key + "\".");
                     }
                 }
-
-                if (fullEquals || halfEquals) {
-                    compareList.remove(compareObj);
-                    break;
+                if (halfEquals) {
+                    halfMatchedFirst.add(mainObj);
+                    halfMatchedSecond.add(compareObj);
+                    secondList.remove(compareObj);
+                    firstList.remove(mainObj);
                 }
             }
+        }
 
-            if (fullEquals) {
-                matchedResult.add(mainObj);
-            } else if (halfEquals) {
-                halfMatchedResult.add(mainObj);
-            } else {
-                notMatchedResult.add(mainObj);
+        if (firstList.size() > 0) {
+            notMatchedResult.addAll(firstList);
+        }
+
+        if (secondList.size() > 0) {
+            notMatchedResult.addAll(secondList);
+        }
+    }
+
+    private void findFullMatch() {
+        boolean nullAsNotEqual = configuration.getNullAsNotEqual();
+        for (JSONObject first : firstList) {
+            SECOND_LIST:
+            for (int j = 0; j < secondList.size(); j++) {
+                JSONObject second = secondList.get(j);
+                for (String key : configuration.getCompareKeys()) {
+                    if ((nullAsNotEqual && (first.isNull(key) || second.isNull(key)))
+                            || (!first.get(key).equals(second.get(key)))) {
+                        continue SECOND_LIST;
+                    }
+                }
+                matchedResult.add(first);
+                secondList.remove(second);
             }
         }
-
-        if (compareList.size() > 0) {
-            secondListStock.addAll(compareList);
-        }
+        firstList.removeAll(matchedResult);
     }
 
     public int getFirstListSize() {
@@ -149,14 +154,6 @@ public class JSONComparator {
         return secondListSize;
     }
 
-    public List<JSONObject> getFirstListStock() {
-        return new ArrayList<>(firstListStock);
-    }
-
-    public List<JSONObject> getSecondListStock() {
-        return new ArrayList<>(secondListStock);
-    }
-
     public Path getFirstJSON() {
         return firstJSON;
     }
@@ -165,20 +162,16 @@ public class JSONComparator {
         return secondJSON;
     }
 
-    public List<JSONObject> getFirstList() {
-        return firstList;
-    }
-
-    public List<JSONObject> getSecondList() {
-        return secondList;
-    }
-
     public List<JSONObject> getMatchedResult() {
         return matchedResult;
     }
 
-    public List<JSONObject> getHalfMatchedResult() {
-        return halfMatchedResult;
+    public List<JSONObject> getHalfMatchedFirst() {
+        return halfMatchedFirst;
+    }
+
+    public List<JSONObject> getHalfMatchedSecond() {
+        return halfMatchedSecond;
     }
 
     public List<JSONObject> getNotMatchedResult() {
