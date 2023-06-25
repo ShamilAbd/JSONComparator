@@ -11,3 +11,7 @@ html {
  text-align: left;
  vertical-align: top;
 }
+.header th {
+ text-align: center;
+ vertical-align: top;
+}

@@ -13,8 +13,8 @@ public class JSONComparator {
     private final List<JSONObject> firstList = new ArrayList<>();
     private final List<JSONObject> secondList = new ArrayList<>();
     private final List<JSONObject> matchedResult = new ArrayList<>();
-    private final List<JSONObject> halfMatchedFirst = new ArrayList<>();
-    private final List<JSONObject> halfMatchedSecond = new ArrayList<>();
+    private final Set<JSONObject> halfMatchedFirst = new HashSet<>();
+    private final Set<JSONObject> halfMatchedSecond = new HashSet<>();
     private final List<JSONObject> notMatchedResult = new ArrayList<>();
     private int firstListSize;
     private int secondListSize;
@@ -80,6 +80,45 @@ public class JSONComparator {
 
     private void compare() {
         findFullMatch();
+        findHalfMatch();
+        findHalfMatchInNotMatchAndFirstHalfMatch();
+    }
+
+    private void findHalfMatchInNotMatchAndFirstHalfMatch() {
+        boolean nullAsNotEqual = configuration.getNullAsNotEqual();
+        boolean halfEquals;
+
+        List<JSONObject> notMatchedResultCopy = new ArrayList<>(notMatchedResult);
+        for (JSONObject mainObj : notMatchedResultCopy) {
+            if (halfMatchedFirst.size() == 0) {
+                break;
+            }
+
+            List<JSONObject> halfMatchedFirstCopy = new ArrayList<>(halfMatchedFirst);
+            for (JSONObject compareObj : halfMatchedFirstCopy) {
+                halfEquals = false;
+                for (String key : configuration.getCompareKeys()) {
+                    if (nullAsNotEqual) {
+                        if (!mainObj.isNull(key) && !compareObj.isNull(key) && mainObj.get(key).equals(compareObj.get(key))) {
+                            if (!halfEquals) {
+                                halfEquals = true;
+                            }
+                        }
+                    } else if (mainObj.get(key).equals(compareObj.get(key))) {
+                        if (!halfEquals) {
+                            halfEquals = true;
+                        }
+                    }
+                }
+                if (halfEquals) {
+                    halfMatchedSecond.add(mainObj);
+                    notMatchedResult.remove(mainObj);
+                }
+            }
+        }
+    }
+
+    private void findHalfMatch() {
         boolean nullAsNotEqual = configuration.getNullAsNotEqual();
         boolean halfEquals;
 
@@ -166,11 +205,11 @@ public class JSONComparator {
         return matchedResult;
     }
 
-    public List<JSONObject> getHalfMatchedFirst() {
+    public Set<JSONObject> getHalfMatchedFirst() {
         return halfMatchedFirst;
     }
 
-    public List<JSONObject> getHalfMatchedSecond() {
+    public Set<JSONObject> getHalfMatchedSecond() {
         return halfMatchedSecond;
     }
 

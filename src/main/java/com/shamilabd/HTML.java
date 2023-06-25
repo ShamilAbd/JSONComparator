@@ -46,7 +46,7 @@ public class HTML {
                         </header>
                         <div class="main-content">""" + printMainStatistics() + """                        
                             <table border=3 class="main-table">
-                              <tr>
+                              <tr class="header">
                                 <th scope="col">Список полностью совпавших элементов</th>
                                 <th scope="col" colspan="2">Список частично совпавших элементов</th>
                                 <th scope="col">Cписок, для которых не осталось объектов для сравнения или не совпавших</th>
@@ -64,7 +64,7 @@ public class HTML {
                             </table>
                         </div>
                         <div class="date-time-comparing">
-                            <p>Дата и время сравнения:\040""" + Utils.getCurrentDateTime() + """
+                            <p>Дата и время сравнения:<br>""" + Utils.getCurrentDateTime() + """
                             </p>
                         </div>
                     </body>
@@ -84,8 +84,8 @@ public class HTML {
     private String printHalfMatchedFirst() {
         StringBuilder builder = new StringBuilder();
         if (configuration.getShowPartialMatched() && comparator.getHalfMatchedFirst().size() > 0) {
-            builder.append(getFormattedList(comparator.getHalfMatchedFirst(),
-                    "partial-matched1"));
+            List<JSONObject> objects = new ArrayList<>(comparator.getHalfMatchedFirst());
+            builder.append(getFormattedList(objects, "partial-matched1"));
         }
         return builder.toString();
     }
@@ -93,8 +93,8 @@ public class HTML {
     private String printHalfMatchedSecond() {
         StringBuilder builder = new StringBuilder();
         if (configuration.getShowPartialMatched() && comparator.getHalfMatchedSecond().size() > 0) {
-            builder.append(getFormattedList(comparator.getHalfMatchedSecond(),
-                    "partial-matched2"));
+            List<JSONObject> objects = new ArrayList<>(comparator.getHalfMatchedSecond());
+            builder.append(getFormattedList(objects, "partial-matched2"));
         }
         return builder.toString();
     }
@@ -132,10 +132,36 @@ public class HTML {
                 + "Краткие сведения:" + newLineTag
                 + "Элементов в 1 файле: " + comparator.getFirstListSize() + newLineTag
                 + "Элементов в 2 файле: " + comparator.getSecondListSize() + newLineTag
+                + "Путь до сравниваемого массива: " + configuration.getCompareKeysArrayPath() + newLineTag
+                + "Список сравниваемых ключей: " + printCompareKeys() + newLineTag
+                + "Сравнение с null всегда равно ложь: " + (configuration.getNullAsNotEqual() ? "да" : "нет") + newLineTag
+                + "Выводить полностью совпавшие элементы: " + (configuration.getShowFullyMatched() ? "да" : "нет") + newLineTag
+                + "Выводить частично совпавшие элементы: " + (configuration.getShowPartialMatched() ? "да" : "нет") + newLineTag
+                + "Выводить не совпавшие элементы: " + (configuration.getShowNotMatched() ? "да" : "нет") + newLineTag
+                + "Выводить объект только по сравниваемым ключам: " + (configuration.getShowOnlyCompareKeys() ? "да" : "нет") + newLineTag
+                + "Открыть HTML с результатами после сравнения: " + (configuration.getOpenResultAfterCompare() ? "да" : "нет") + newLineTag
+                + "Добавить порядковые номера к объетам сравнения: " + (configuration.getAddRowNumber() ? "да" : "нет") + newLineTag
+                + "Добавить запятые между объетами сравнения: " + (configuration.getAddCommaBetweenObjects() ? "да" : "нет") + newLineTag
+                + "Количество пробелов в отступе объектов: " + configuration.getLeftIndentsInObject() + newLineTag
                 + "Совпало полностью: " + comparator.getMatchedResult().size() + newLineTag
-                + "Совпало частично: " + comparator.getHalfMatchedFirst().size() + newLineTag
+                + "Совпало частично: " + comparator.getHalfMatchedFirst().size() + "/" + comparator.getHalfMatchedSecond().size() + newLineTag
                 + "Не совпало/не с чем сравнивать: " + comparator.getNotMatchedResult().size() + newLineTag
                 + "<p></div>\n";
+    }
+
+    private String printCompareKeys() {
+        StringBuilder builder = new StringBuilder();
+        int keysCount = configuration.getCompareKeys().size();
+        for (int i = 0; i < keysCount; i++) {
+            builder.append("\"");
+            builder.append(configuration.getCompareKeys().get(i));
+            builder.append("\"");
+
+            if (i < keysCount - 1) {
+                builder.append(", ");
+            }
+        }
+        return builder.toString();
     }
 
     private String getNextRowNumber() {
@@ -157,7 +183,7 @@ public class HTML {
     }
 
     private String getFullObjectRepresentationView(JSONObject object) {
-        return object.toString();
+        return object.toString(configuration.getLeftIndentsInObject());
     }
 
     private String toStringByCompareKeys(JSONObject object, int indentFactor) {
