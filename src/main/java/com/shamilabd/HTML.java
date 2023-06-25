@@ -1,7 +1,10 @@
 package com.shamilabd;
 
 import org.json.JSONObject;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class HTML {
     private final Configuration configuration;
@@ -20,6 +23,9 @@ public class HTML {
         // TODO: 6. Добавить md5 сумм файлов.
         // TODO: 7. потом доделать функционал по поиску дублей в файлах
         // TODO: UI на свинге
+        // TODO: покрыть тестами JUnit5
+        // TODO: зашить стили и картинку в jar
+        // TODO:
         JSONComparator comparator = new JSONComparator();
         HTML resultPage = new HTML(comparator);
         Utils.saveInFile(resultPage.getHtmlFilePath(), resultPage.getHTMLContent());
@@ -37,75 +43,138 @@ public class HTML {
                         <link rel="stylesheet" type="text/css" href="style.css">
                     </head>
                     <body>
-                        <header class="header-style" id="fileStart">
-                            <h2>Сравнение JSON файлов</h2>
-                            <p>Файлы:<br>
-                                """ + comparator.getFirstJSON().toAbsolutePath() + "<br>\n"
-                                    + comparator.getSecondJSON().toAbsolutePath() + """
-                            </p>
-                            <div><p>
-                                <a href="#firstFileStart">Начало первого файла</a><br>
-                                <a href="#secondFileStart">Начало второго файла</a>
-                            </p></div>
-                        </header>
-                        <div class="main-content">""" + printMainStatistics() + """      
-                            <p id="firstFileStart">Первый файл:</p>
-                            <table border=3 class="main-table">
+                        <div class="header-style" id="fileStart">
+                            <div class="header-side">
+                            </div>
+                            <div class="header-center">
+                                <h2>Сравнение JSON файлов</h2>
+                            </div>
+                            <div class="header-side">
+                                <a href="https://github.com/ShamilAbd/JSONComparator" target="_blank"><img src="github-logo.png" alt="GitHub.com/ShamilAbd/JSONComparator"></a>
+                            </div>
+                        </div>
+                        <div class="main-content">
+                            """ + printStatisticsAndConfigs() + """      
+                            <p id="firstFileStart">Перейти на начало объектов <a href="#secondFileStart"><b>второго</b> файла</a>.</p>
+                            <p>Объекты <b>первого</b> файла:</p>
+                            
+                            <table class="main-table">
                               <tr class="header">
-                                <th scope="col">Список полностью совпавших элементов</th>
-                                <th scope="col">Список частично совпавших элементов</th>
-                                <th scope="col">Cписок, для которых не осталось объектов для сравнения или не совпавших</th>
+                                <td>Полностью совпавшие элементы</td>
+                                <td>Частично совпавшие элементы</td>
+                                <td>Не совпавшие или те, для которых не осталось объектов для сравнения</td>
                               </tr>
-                              <tr>
-                                <th scope="row">""" + printMatchedFirst() + """
-                                </th>
-                                <th scope="row">""" + printHalfMatchedFirst() + """
-                                </th>
-                                <th scope="row">""" + printNotMatchedFirst() + """
-                                </th>
+                              <tr class="data">
+                                <td scope="row">""" + printMatchedFirst() + """
+                                </td>
+                                <td scope="row">""" + printHalfMatchedFirst() + """
+                                </td>
+                                <td scope="row">""" + printNotMatchedFirst() + """
+                                </td>
                               </tr>
                             </table><br>
-                            <div id="secondFileStart"> 
-                                <a href="#firstFileStart">Перейти на начало первого файла.</a><br>
-                                <p>Второй файл:</p> 
-                            </div>
-                            <table border=3 class="main-table">
+                            
+                            <p id="secondFileStart">Перейти на начало объектов <a href="#firstFileStart"><b>первого файла</b></a>.</p>
+                            <p>Объекты <b>второго</b> файл:</p>
+                        
+                            <table class="main-table">
                               <tr class="header">
-                                <th scope="col">Список полностью совпавших элементов</th>
-                                <th scope="col">Список частично совпавших элементов</th>
-                                <th scope="col">Cписок, для которых не осталось объектов для сравнения или не совпавших</th>
+                                <td>Полностью совпавшие элементы</td>
+                                <td>Частично совпавшие элементы</td>
+                                <td>Не совпавшие или те, для которых не осталось объектов для сравнения</td>
                               </tr>
-                              <tr>
-                                <th scope="row">""" + printMatchedSecond() + """
-                                </th>
-                                <th scope="row">""" + printHalfMatchedSecond() + """
-                                </th>
-                                <th scope="row">""" + printNotMatchedSecond() + """
-                                </th>
+                              <tr class="data">
+                                <td scope="row">""" + printMatchedSecond() + """
+                                </td>
+                                <td scope="row">""" + printHalfMatchedSecond() + """
+                                </td>
+                                <td scope="row">""" + printNotMatchedSecond() + """
+                                </td>
                               </tr>
                             </table>
                         </div>
                         <div>
-                            <p>
-                                <a href="#fileStart">Перейти на начало отчета</a><br>
-                                <a href="#firstFileStart">Перейти на начало первого файла</a><br>
-                                <a href="#secondFileStart">Перейти на начало второго файла</a>
+                            <p>Перейти на начало:<br>
+                                <a href="#fileStart">отчета</a><br>
+                                <a href="#firstFileStart">объектов <b>первого</b> файла</a><br>
+                                <a href="#secondFileStart">объектов <b>второго</b> файла</a>
                             </p>
                         </div>
-                        <div class="date-time-comparing">
-                            <p>Дата и время сравнения:<br>""" + Utils.getCurrentDateTime() + """
-                            </p>
+                        <div id="footer-background">
+                          <div id="footer">
+                            <div id="DateTime">
+                              <span class="Head">Дата и время сравнения:</span><br>
+                              <span class="Data">""" + Utils.getCurrentDateTime() + """
+                              </span>
+                            </div>
+                            <div id="Version">
+                              <span class="Head">Версия JSONComparator:\040""" + configuration.getCurrentJsonComparatorVersion() + """
+                              </span>
+                            </div>
+                            <div id="Author">
+                              <span class="Head">Автор: Абдуллин Шамиль</span><br>
+                              <span class="Data"><a href="https://github.com/ShamilAbd/JSONComparator" target="_blank">GitHub.com/ShamilAbd/JSONComparator</a></span>
+                            </div>
+                          </div>
                         </div>
                     </body>
                 </html>
                 """;
     }
 
+    private String printStatisticsAndConfigs() {
+        String newLineTag = "<br>\n";
+        return """
+                <table class="configAndStatistics">
+                  <tr class="file-header">
+                    <td colspan="2">Сравниваемые файлы</td>
+                  </tr>
+                  <tr class="file-list">
+                    <td colspan="2">""" + getCompareFilesLinks() + """
+                    </td>
+                  </tr>
+                  <tr class="header">
+                    <td>Статистика по итогу сравнения</td>
+                    <td>Параметры сравнения файлов</td>
+                  </tr>
+                  <tr class="data">
+                    <td>
+                        Объектов в 1 файле:\040""" + comparator.getFirstListSize() + newLineTag + """
+                        Объектов в 2 файле:\040""" + comparator.getSecondListSize() + newLineTag + """
+                        Совпало полностью:\040""" + comparator.getMatchedFirst().size() + newLineTag + """
+                        Совпало частично (первый файл):\040""" + comparator.getHalfMatchedFirst().size() + newLineTag + """
+                        Совпало частично (второй файл):\040""" + comparator.getHalfMatchedSecond().size() + newLineTag + """
+                        Не совпало/не с чем сравнивать (первый файл):\040""" + comparator.getNotMatchedFirst().size() + newLineTag + """
+                        Не совпало/не с чем сравнивать (второй файл):\040""" + comparator.getNotMatchedSecond().size() + newLineTag + """
+                    </td>
+                    <td>
+                        Путь до сравниваемого массива:\040\"""" + configuration.getCompareKeysArrayPath() + "\"" + newLineTag + """
+                        Список сравниваемых ключей:\040""" + printCompareKeys() + newLineTag + """
+                        Сравнение с null всегда равно ложь:\040""" + (configuration.getNullAsNotEqual() ? "да" : "нет") + newLineTag + """
+                        Выводить полностью совпавшие элементы:\040""" + (configuration.getShowFullyMatched() ? "да" : "нет") + newLineTag + """
+                        Выводить частично совпавшие элементы:\040""" + (configuration.getShowPartialMatched() ? "да" : "нет") + newLineTag + """
+                        Выводить не совпавшие элементы:\040""" + (configuration.getShowNotMatched() ? "да" : "нет") + newLineTag + """
+                        Выводить объекты только по сравниваемым ключам:\040""" + (configuration.getShowOnlyCompareKeys() ? "да" : "нет") + newLineTag + """
+                        Открыть HTML с результатами после сравнения:\040""" + (configuration.getOpenResultAfterCompare() ? "да" : "нет") + newLineTag + """
+                        Добавить порядковые номера к объектам сравнения:\040""" + (configuration.getAddRowNumber() ? "да" : "нет") + newLineTag + """
+                        Добавить запятые между объектами сравнения:\040""" + (configuration.getAddCommaBetweenObjects() ? "да" : "нет") + newLineTag + """
+                        Количество пробелов в отступе объектов:\040""" + configuration.getLeftIndentsInObject() + newLineTag + """
+                    </td>
+                  </tr>
+                </table>""";
+    }
+
+    private String getCompareFilesLinks() {
+        return "<a href=\"" + comparator.getFirstJSON().toAbsolutePath() + "\" target=\"_blank\">"
+                + comparator.getFirstJSON().toAbsolutePath() + "</a><br>\n"
+                + "<a href=\"" + comparator.getSecondJSON().toAbsolutePath() + "\" target=\"_blank\">"
+                + comparator.getSecondJSON().toAbsolutePath() + "</a>";
+    }
+
     private String printMatchedFirst() {
         StringBuilder builder = new StringBuilder();
         if (configuration.getShowFullyMatched() && comparator.getMatchedFirst().size() > 0) {
-            builder.append(getFormattedList(comparator.getMatchedFirst(),
-                    "fully-matched"));
+            builder.append(getFormattedList(comparator.getMatchedFirst()));
         }
         return builder.toString();
     }
@@ -114,7 +183,7 @@ public class HTML {
         StringBuilder builder = new StringBuilder();
         if (configuration.getShowPartialMatched() && comparator.getHalfMatchedFirst().size() > 0) {
             List<JSONObject> objects = new ArrayList<>(comparator.getHalfMatchedFirst());
-            builder.append(getFormattedList(objects, "partial-matched1"));
+            builder.append(getFormattedList(objects));
         }
         return builder.toString();
     }
@@ -122,8 +191,7 @@ public class HTML {
     private String printNotMatchedFirst() {
         StringBuilder builder = new StringBuilder();
         if (configuration.getShowNotMatched() && comparator.getNotMatchedFirst().size() > 0) {
-            builder.append(getFormattedList(comparator.getNotMatchedFirst(),
-                    "not-matched"));
+            builder.append(getFormattedList(comparator.getNotMatchedFirst()));
         }
         return builder.toString();
     }
@@ -131,8 +199,7 @@ public class HTML {
     private String printMatchedSecond() {
         StringBuilder builder = new StringBuilder();
         if (configuration.getShowFullyMatched() && comparator.getMatchedSecond().size() > 0) {
-            builder.append(getFormattedList(comparator.getMatchedSecond(),
-                    "fully-matched"));
+            builder.append(getFormattedList(comparator.getMatchedSecond()));
         }
         return builder.toString();
     }
@@ -141,7 +208,7 @@ public class HTML {
         StringBuilder builder = new StringBuilder();
         if (configuration.getShowPartialMatched() && comparator.getHalfMatchedSecond().size() > 0) {
             List<JSONObject> objects = new ArrayList<>(comparator.getHalfMatchedSecond());
-            builder.append(getFormattedList(objects, "partial-matched2"));
+            builder.append(getFormattedList(objects));
         }
         return builder.toString();
     }
@@ -149,17 +216,14 @@ public class HTML {
     private String printNotMatchedSecond() {
         StringBuilder builder = new StringBuilder();
         if (configuration.getShowNotMatched() && comparator.getNotMatchedSecond().size() > 0) {
-            builder.append(getFormattedList(comparator.getNotMatchedSecond(),
-                    "not-matched"));
+            builder.append(getFormattedList(comparator.getNotMatchedSecond()));
         }
         return builder.toString();
     }
 
-    private StringBuilder getFormattedList(List<JSONObject> list, String className) {
+    private StringBuilder getFormattedList(List<JSONObject> list) {
         StringBuilder builder = new StringBuilder();
-        builder.append("<div class=\"").append(className).append("\">");
         builder.append("<pre>");
-
         boolean isNeedAddCommaBetweenObjects = configuration.getAddCommaBetweenObjects();
         int listSize = list.size();
         for (int i = 0; i < listSize; i++) {
@@ -169,33 +233,9 @@ public class HTML {
             }
             builder.append("\n");
         }
-        builder.append("</pre></div>\n");
+        builder.append("</pre>\n");
+        rowNumber = 0;
         return builder;
-    }
-
-    private String printMainStatistics() {
-        String newLineTag = "<br>\n";
-        return "<div class=\"files-statistic\"><p>"
-                + "Краткие сведения:" + newLineTag
-                + "Элементов в 1 файле: " + comparator.getFirstListSize() + newLineTag
-                + "Элементов в 2 файле: " + comparator.getSecondListSize() + newLineTag
-                + "Путь до сравниваемого массива: " + configuration.getCompareKeysArrayPath() + newLineTag
-                + "Список сравниваемых ключей: " + printCompareKeys() + newLineTag
-                + "Сравнение с null всегда равно ложь: " + (configuration.getNullAsNotEqual() ? "да" : "нет") + newLineTag
-                + "Выводить полностью совпавшие элементы: " + (configuration.getShowFullyMatched() ? "да" : "нет") + newLineTag
-                + "Выводить частично совпавшие элементы: " + (configuration.getShowPartialMatched() ? "да" : "нет") + newLineTag
-                + "Выводить не совпавшие элементы: " + (configuration.getShowNotMatched() ? "да" : "нет") + newLineTag
-                + "Выводить объект только по сравниваемым ключам: " + (configuration.getShowOnlyCompareKeys() ? "да" : "нет") + newLineTag
-                + "Открыть HTML с результатами после сравнения: " + (configuration.getOpenResultAfterCompare() ? "да" : "нет") + newLineTag
-                + "Добавить порядковые номера к объетам сравнения: " + (configuration.getAddRowNumber() ? "да" : "нет") + newLineTag
-                + "Добавить запятые между объетами сравнения: " + (configuration.getAddCommaBetweenObjects() ? "да" : "нет") + newLineTag
-                + "Количество пробелов в отступе объектов: " + configuration.getLeftIndentsInObject() + newLineTag
-                + "Совпало полностью: " + comparator.getMatchedFirst().size() + newLineTag
-                + "Совпало частично (первый файл): " + comparator.getHalfMatchedFirst().size() + newLineTag
-                + "Совпало частично (второй файл): " + comparator.getHalfMatchedSecond().size() + newLineTag
-                + "Не совпало/не с чем сравнивать (первый файл): " + comparator.getNotMatchedFirst().size() + newLineTag
-                + "Не совпало/не с чем сравнивать (второй файл): " + comparator.getNotMatchedSecond().size() + newLineTag
-                + "<p></div>\n";
     }
 
     private String printCompareKeys() {

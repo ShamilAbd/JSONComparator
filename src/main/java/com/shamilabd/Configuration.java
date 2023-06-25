@@ -86,6 +86,9 @@ public class Configuration {
 
     private void loadCompareKeys() {
         JSONArray values = (JSONArray) rootJSON.get("compareKeys");
+        if (values.isEmpty()) {
+            throw new RuntimeException("Не заполнен массив с ключами для сранения объектов.");
+        }
         for (Object value : values) {
             compareKeys.add((String) value);
         }
@@ -147,6 +150,10 @@ public class Configuration {
         return addCommaBetweenObjects;
     }
 
+    public int getCurrentJsonComparatorVersion() {
+        return currentJsonComparatorVersion;
+    }
+
     public static void main(String[] args) {
         // For simple test
         Configuration configuration = new Configuration();
@@ -165,5 +172,6 @@ public class Configuration {
         System.out.println(configuration.getAddRowNumber());
         System.out.println(configuration.getAddCommaBetweenObjects());
         System.out.println(configuration.getJsonComparatorVersion());
+        System.out.println(configuration.getCurrentJsonComparatorVersion());
     }
 }

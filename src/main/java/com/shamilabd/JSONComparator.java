@@ -4,7 +4,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class JSONComparator {
     private final Configuration configuration;
@@ -42,8 +45,13 @@ public class JSONComparator {
 
     public void fillJSONList(String jsonFilePath, String pathToJSONArray, List<JSONObject> listForJSONObjects) {
         String jsonText = Utils.readFile(jsonFilePath);
-        JSONObject rootJSON = new JSONObject(jsonText);
-        JSONArray values = getJSONArrayByPath(pathToJSONArray, rootJSON);
+        JSONArray values;
+        if (configuration.getCompareKeysArrayPath().equals("")) {
+            values = new JSONArray(jsonText);
+        } else {
+            JSONObject rootJSON = new JSONObject(jsonText);
+            values = getJSONArrayByPath(pathToJSONArray, rootJSON);
+        }
         for (Object value : values) {
             listForJSONObjects.add((JSONObject) value);
         }
@@ -195,14 +203,6 @@ public class JSONComparator {
 
     public Path getSecondJSON() {
         return secondJSON;
-    }
-
-    public List<JSONObject> getFirstList() {
-        return firstList;
-    }
-
-    public List<JSONObject> getSecondList() {
-        return secondList;
     }
 
     public List<JSONObject> getMatchedFirst() {
