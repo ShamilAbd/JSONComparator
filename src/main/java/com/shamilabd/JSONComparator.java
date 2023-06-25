@@ -12,10 +12,12 @@ public class JSONComparator {
     private final Path secondJSON;
     private final List<JSONObject> firstList = new ArrayList<>();
     private final List<JSONObject> secondList = new ArrayList<>();
-    private final List<JSONObject> matchedResult = new ArrayList<>();
+    private final List<JSONObject> matchedFirst = new ArrayList<>();
+    private final List<JSONObject> matchedSecond = new ArrayList<>();
     private final Set<JSONObject> halfMatchedFirst = new HashSet<>();
     private final Set<JSONObject> halfMatchedSecond = new HashSet<>();
-    private final List<JSONObject> notMatchedResult = new ArrayList<>();
+    private final List<JSONObject> notMatchedFirst = new ArrayList<>();
+    private final List<JSONObject> notMatchedSecond = new ArrayList<>();
     private int firstListSize;
     private int secondListSize;
 
@@ -81,41 +83,28 @@ public class JSONComparator {
     private void compare() {
         findFullMatch();
         findHalfMatch();
-        findHalfMatchInNotMatchAndFirstHalfMatch();
+        findHalfMatchInOtherList(notMatchedFirst, halfMatchedSecond, halfMatchedFirst);
+        findHalfMatchInOtherList(notMatchedSecond, halfMatchedFirst, halfMatchedSecond);
     }
 
-    private void findHalfMatchInNotMatchAndFirstHalfMatch() {
+    private void findFullMatch() {
         boolean nullAsNotEqual = configuration.getNullAsNotEqual();
-        boolean halfEquals;
-
-        List<JSONObject> notMatchedResultCopy = new ArrayList<>(notMatchedResult);
-        for (JSONObject mainObj : notMatchedResultCopy) {
-            if (halfMatchedFirst.size() == 0) {
-                break;
-            }
-
-            List<JSONObject> halfMatchedFirstCopy = new ArrayList<>(halfMatchedFirst);
-            for (JSONObject compareObj : halfMatchedFirstCopy) {
-                halfEquals = false;
+        for (JSONObject first : firstList) {
+            SECOND_LIST:
+            for (int j = 0; j < secondList.size(); j++) {
+                JSONObject second = secondList.get(j);
                 for (String key : configuration.getCompareKeys()) {
-                    if (nullAsNotEqual) {
-                        if (!mainObj.isNull(key) && !compareObj.isNull(key) && mainObj.get(key).equals(compareObj.get(key))) {
-                            if (!halfEquals) {
-                                halfEquals = true;
-                            }
-                        }
-                    } else if (mainObj.get(key).equals(compareObj.get(key))) {
-                        if (!halfEquals) {
-                            halfEquals = true;
-                        }
+                    if ((nullAsNotEqual && (first.isNull(key) || second.isNull(key)))
+                            || (!first.get(key).equals(second.get(key)))) {
+                        continue SECOND_LIST;
                     }
                 }
-                if (halfEquals) {
-                    halfMatchedSecond.add(mainObj);
-                    notMatchedResult.remove(mainObj);
-                }
+                matchedFirst.add(first);
+                matchedSecond.add(second);
+                secondList.remove(second);
             }
         }
+        firstList.removeAll(matchedFirst);
     }
 
     private void findHalfMatch() {
@@ -158,39 +147,46 @@ public class JSONComparator {
         }
 
         if (firstList.size() > 0) {
-            notMatchedResult.addAll(firstList);
+            notMatchedFirst.addAll(firstList);
         }
 
         if (secondList.size() > 0) {
-            notMatchedResult.addAll(secondList);
+            notMatchedSecond.addAll(secondList);
         }
     }
 
-    private void findFullMatch() {
+    private void findHalfMatchInOtherList(List<JSONObject> notMatchedMain, Set<JSONObject>halfMatchedSecond, Set<JSONObject> halfMatchedMain) {
         boolean nullAsNotEqual = configuration.getNullAsNotEqual();
-        for (JSONObject first : firstList) {
-            SECOND_LIST:
-            for (int j = 0; j < secondList.size(); j++) {
-                JSONObject second = secondList.get(j);
+        boolean halfEquals;
+
+        List<JSONObject> notMatchedFirstCopy = new ArrayList<>(notMatchedMain);
+        for (JSONObject mainObj : notMatchedFirstCopy) {
+            if (halfMatchedMain.size() == 0) {
+                break;
+            }
+
+            List<JSONObject> halfMatchedFirstCopy = new ArrayList<>(halfMatchedSecond);
+            for (JSONObject compareObj : halfMatchedFirstCopy) {
+                halfEquals = false;
                 for (String key : configuration.getCompareKeys()) {
-                    if ((nullAsNotEqual && (first.isNull(key) || second.isNull(key)))
-                            || (!first.get(key).equals(second.get(key)))) {
-                        continue SECOND_LIST;
+                    if (nullAsNotEqual) {
+                        if (!mainObj.isNull(key) && !compareObj.isNull(key) && mainObj.get(key).equals(compareObj.get(key))) {
+                            if (!halfEquals) {
+                                halfEquals = true;
+                            }
+                        }
+                    } else if (mainObj.get(key).equals(compareObj.get(key))) {
+                        if (!halfEquals) {
+                            halfEquals = true;
+                        }
                     }
                 }
-                matchedResult.add(first);
-                secondList.remove(second);
+                if (halfEquals) {
+                    halfMatchedMain.add(mainObj);
+                    notMatchedMain.remove(mainObj);
+                }
             }
         }
-        firstList.removeAll(matchedResult);
-    }
-
-    public int getFirstListSize() {
-        return firstListSize;
-    }
-
-    public int getSecondListSize() {
-        return secondListSize;
     }
 
     public Path getFirstJSON() {
@@ -201,8 +197,20 @@ public class JSONComparator {
         return secondJSON;
     }
 
-    public List<JSONObject> getMatchedResult() {
-        return matchedResult;
+    public List<JSONObject> getFirstList() {
+        return firstList;
+    }
+
+    public List<JSONObject> getSecondList() {
+        return secondList;
+    }
+
+    public List<JSONObject> getMatchedFirst() {
+        return matchedFirst;
+    }
+
+    public List<JSONObject> getMatchedSecond() {
+        return matchedSecond;
     }
 
     public Set<JSONObject> getHalfMatchedFirst() {
@@ -213,7 +221,19 @@ public class JSONComparator {
         return halfMatchedSecond;
     }
 
-    public List<JSONObject> getNotMatchedResult() {
-        return notMatchedResult;
+    public List<JSONObject> getNotMatchedFirst() {
+        return notMatchedFirst;
+    }
+
+    public List<JSONObject> getNotMatchedSecond() {
+        return notMatchedSecond;
+    }
+
+    public int getFirstListSize() {
+        return firstListSize;
+    }
+
+    public int getSecondListSize() {
+        return secondListSize;
     }
 }

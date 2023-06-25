@@ -37,31 +37,60 @@ public class HTML {
                         <link rel="stylesheet" type="text/css" href="style.css">
                     </head>
                     <body>
-                        <header class="header-style">
+                        <header class="header-style" id="fileStart">
                             <h2>Сравнение JSON файлов</h2>
                             <p>Файлы:<br>
                                 """ + comparator.getFirstJSON().toAbsolutePath() + "<br>\n"
                                     + comparator.getSecondJSON().toAbsolutePath() + """
                             </p>
+                            <div><p>
+                                <a href="#firstFileStart">Начало первого файла</a><br>
+                                <a href="#secondFileStart">Начало второго файла</a>
+                            </p></div>
                         </header>
-                        <div class="main-content">""" + printMainStatistics() + """                        
+                        <div class="main-content">""" + printMainStatistics() + """      
+                            <p id="firstFileStart">Первый файл:</p>
                             <table border=3 class="main-table">
                               <tr class="header">
                                 <th scope="col">Список полностью совпавших элементов</th>
-                                <th scope="col" colspan="2">Список частично совпавших элементов</th>
+                                <th scope="col">Список частично совпавших элементов</th>
                                 <th scope="col">Cписок, для которых не осталось объектов для сравнения или не совпавших</th>
                               </tr>
                               <tr>
-                                <th scope="row">""" + printMatched() + """
+                                <th scope="row">""" + printMatchedFirst() + """
                                 </th>
                                 <th scope="row">""" + printHalfMatchedFirst() + """
                                 </th>
+                                <th scope="row">""" + printNotMatchedFirst() + """
+                                </th>
+                              </tr>
+                            </table><br>
+                            <div id="secondFileStart"> 
+                                <a href="#firstFileStart">Перейти на начало первого файла.</a><br>
+                                <p>Второй файл:</p> 
+                            </div>
+                            <table border=3 class="main-table">
+                              <tr class="header">
+                                <th scope="col">Список полностью совпавших элементов</th>
+                                <th scope="col">Список частично совпавших элементов</th>
+                                <th scope="col">Cписок, для которых не осталось объектов для сравнения или не совпавших</th>
+                              </tr>
+                              <tr>
+                                <th scope="row">""" + printMatchedSecond() + """
+                                </th>
                                 <th scope="row">""" + printHalfMatchedSecond() + """
                                 </th>
-                                <th scope="row">""" + printNotMatched() + """
+                                <th scope="row">""" + printNotMatchedSecond() + """
                                 </th>
                               </tr>
                             </table>
+                        </div>
+                        <div>
+                            <p>
+                                <a href="#fileStart">Перейти на начало отчета</a><br>
+                                <a href="#firstFileStart">Перейти на начало первого файла</a><br>
+                                <a href="#secondFileStart">Перейти на начало второго файла</a>
+                            </p>
                         </div>
                         <div class="date-time-comparing">
                             <p>Дата и время сравнения:<br>""" + Utils.getCurrentDateTime() + """
@@ -72,10 +101,10 @@ public class HTML {
                 """;
     }
 
-    private String printMatched() {
+    private String printMatchedFirst() {
         StringBuilder builder = new StringBuilder();
-        if (configuration.getShowFullyMatched() && comparator.getMatchedResult().size() > 0) {
-            builder.append(getFormattedList(comparator.getMatchedResult(),
+        if (configuration.getShowFullyMatched() && comparator.getMatchedFirst().size() > 0) {
+            builder.append(getFormattedList(comparator.getMatchedFirst(),
                     "fully-matched"));
         }
         return builder.toString();
@@ -90,6 +119,24 @@ public class HTML {
         return builder.toString();
     }
 
+    private String printNotMatchedFirst() {
+        StringBuilder builder = new StringBuilder();
+        if (configuration.getShowNotMatched() && comparator.getNotMatchedFirst().size() > 0) {
+            builder.append(getFormattedList(comparator.getNotMatchedFirst(),
+                    "not-matched"));
+        }
+        return builder.toString();
+    }
+
+    private String printMatchedSecond() {
+        StringBuilder builder = new StringBuilder();
+        if (configuration.getShowFullyMatched() && comparator.getMatchedSecond().size() > 0) {
+            builder.append(getFormattedList(comparator.getMatchedSecond(),
+                    "fully-matched"));
+        }
+        return builder.toString();
+    }
+
     private String printHalfMatchedSecond() {
         StringBuilder builder = new StringBuilder();
         if (configuration.getShowPartialMatched() && comparator.getHalfMatchedSecond().size() > 0) {
@@ -99,10 +146,10 @@ public class HTML {
         return builder.toString();
     }
 
-    private String printNotMatched() {
+    private String printNotMatchedSecond() {
         StringBuilder builder = new StringBuilder();
-        if (configuration.getShowNotMatched() && comparator.getNotMatchedResult().size() > 0) {
-            builder.append(getFormattedList(comparator.getNotMatchedResult(),
+        if (configuration.getShowNotMatched() && comparator.getNotMatchedSecond().size() > 0) {
+            builder.append(getFormattedList(comparator.getNotMatchedSecond(),
                     "not-matched"));
         }
         return builder.toString();
@@ -143,9 +190,11 @@ public class HTML {
                 + "Добавить порядковые номера к объетам сравнения: " + (configuration.getAddRowNumber() ? "да" : "нет") + newLineTag
                 + "Добавить запятые между объетами сравнения: " + (configuration.getAddCommaBetweenObjects() ? "да" : "нет") + newLineTag
                 + "Количество пробелов в отступе объектов: " + configuration.getLeftIndentsInObject() + newLineTag
-                + "Совпало полностью: " + comparator.getMatchedResult().size() + newLineTag
-                + "Совпало частично: " + comparator.getHalfMatchedFirst().size() + "/" + comparator.getHalfMatchedSecond().size() + newLineTag
-                + "Не совпало/не с чем сравнивать: " + comparator.getNotMatchedResult().size() + newLineTag
+                + "Совпало полностью: " + comparator.getMatchedFirst().size() + newLineTag
+                + "Совпало частично (первый файл): " + comparator.getHalfMatchedFirst().size() + newLineTag
+                + "Совпало частично (второй файл): " + comparator.getHalfMatchedSecond().size() + newLineTag
+                + "Не совпало/не с чем сравнивать (первый файл): " + comparator.getNotMatchedFirst().size() + newLineTag
+                + "Не совпало/не с чем сравнивать (второй файл): " + comparator.getNotMatchedSecond().size() + newLineTag
                 + "<p></div>\n";
     }
 
