@@ -2,6 +2,26 @@ body {
   background : #2B2B2B;
   margin: 0;
 }
+a {
+  color: #aa71dd;
+}
+div {
+  color: #af5b08;
+}
+pre {
+ text-wrap: wrap;
+ margin: 0;
+}
+table {
+  background: #3C3F41;
+  color: #939393; 
+  border: 2px solid black; 
+  border-collapse: collapse; 
+}
+table td { 
+  border: 1px solid black;  
+  padding: 5px; 
+}
 .main-content {
     padding-left: 5px;
     padding-right: 5px;
@@ -13,12 +33,13 @@ body {
     background: #3C3F41;
     margin-bottom: 20px;
 }
-.header-left {
-  width: 256px;
-}
+.header-style h2 {
+  text-align: center;
+  margin-top: 30px;
+  color: #ff8d00;
+} 
 .header-center {
-  flex-grow: 1; 
-  height: 95px;
+  flex-grow: 1;  
 }
 .header-center h2 {
   font-size: 30px;
@@ -28,73 +49,36 @@ body {
   text-align: right;
   padding: 5px;
 }
-a {
-  color: #aa71dd;
-}
-div {
-  color: #af5b08;
-}
-table {
-  background: #3C3F41;
-  color: #939393; 
-  border: 2px solid black; 
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-table td { 
-  border: 1px solid black;  
-  padding: 5px; 
-}
 .header1 {
   font-size: 20px;
   text-align: center;
-  vertical-align: middle;
 } 
 .header2 {
  text-align: center;
- vertical-align: middle;
  font-size: 18px;
 }
 .duplicates {
-    min-width: 865px;
-    margin: 0 auto;
-    margin-top: 15px;
-    margin-bottom: 15px;
-} 
-#MainHeader {
-  font-size: 20px;
-} 
-.header-style h2 {
-  text-align: center;
-  margin-top: 30px;
-  color: #ff8d00;
-} 
-.configAndStatistics {  
+  min-width: 450px; 
+}
+.configAndStatistics .data td { 
+ min-width: 380px; 
+}
+.centering {  
   margin: 0 auto;
 }
 .data td {
  text-align: left;
- vertical-align: top;
-}
-.configAndStatistics .data td { 
- min-width: 420px; 
+ vertical-align: top;  
  font-family: monospace;
-} 
-.main-table .data td {
+}
+.main-table td {
  width: 33%; 
 } 
 .file-list {
   padding-bottom: 15px;
 }
-pre {
- text-wrap: wrap;
- margin: 0px;
-}
 #footer-background {
     background: #000000;
-    margin-bottom: -7px;
-    margin-left: -7px;
-    margin-right: -7px;
     padding: 15px;  
 }
 #footer {

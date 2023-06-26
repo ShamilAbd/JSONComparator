@@ -83,18 +83,18 @@ public class HTML {
                         </div>
                         <div id="footer-background">
                           <div id="footer">
-                            <div id="DateTime">
-                              <span class="Head">Дата и время сравнения:</span><br>
-                              <span class="Data">""" + Utils.getCurrentDateTime() + """
+                            <div>
+                              <span>Дата и время сравнения:</span><br>
+                              <span>""" + Utils.getCurrentDateTime() + """
                               </span>
                             </div>
-                            <div id="Version">
-                              <span class="Head">Версия JSONComparator:\040""" + configuration.getCurrentJsonComparatorVersion() + """
+                            <div>
+                              <span>Версия JSONComparator:\040""" + configuration.getCurrentJsonComparatorVersion() + """
                               </span>
                             </div>
-                            <div id="Author">
-                              <span class="Head">Сайт проекта:</span><br>
-                              <span class="Data"><a href="https://github.com/ShamilAbd/JSONComparator" target="_blank">GitHub.com/ShamilAbd/JSONComparator</a></span>
+                            <div>
+                              <span>Сайт проекта:</span><br>
+                              <span><a href="https://github.com/ShamilAbd/JSONComparator" target="_blank">GitHub.com/ShamilAbd/JSONComparator</a></span>
                             </div>
                           </div>
                         </div>
@@ -160,9 +160,9 @@ public class HTML {
                     Перейти на начало объектов <a href="#secondFileStart"><b>второго</b> файла</a>.</p>
                     <p>Найденные дубликаты объектов в файлах:</p>
                 </div>
-                <table class="duplicates">
+                <table class="duplicates centering">
                   <tr class="header1">
-                    <td colspan="2" id="MainHeader">Дубликаты в файлах</td>
+                    <td colspan="2">Дубликаты в файлах</td>
                   </tr>
                   <tr class="header2">
                     <td>Первый файл</td>
@@ -196,7 +196,7 @@ public class HTML {
     private String printStatisticsAndConfigs() {
         String newLineTag = "<br>\n";
         return """
-                <table class="configAndStatistics">
+                <table class="configAndStatistics centering">
                   <tr class="header1">
                     <td colspan="2">Сравниваемые файлы</td>
                   </tr>
