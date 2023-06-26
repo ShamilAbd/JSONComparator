@@ -19,15 +19,16 @@ public class HTML {
         htmlFilePath = "CompareResult.html"; // TODO: вернуть миллисекунды после отладки
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         // TODO: 6. Добавить md5 сумм файлов.
         // TODO: UI на свинге
         // TODO: покрыть тестами JUnit5
-        // TODO: зашить стили и картинку в jar
+        // TODO: результаты сравнения класть в отдельную папку
         JSONComparator comparator = new JSONComparator();
         HTML resultPage = new HTML(comparator);
-        //System.out.println(HTML.class.getResource("/style.css").getPath());
         Utils.saveInFile(resultPage.getHtmlFilePath(), resultPage.getHTMLContent());
+        Utils.exportResource("/json-logo.png");
+        Utils.exportResource("/github-logo.png");
         resultPage.openInSystem(resultPage.configuration.getOpenResultAfterCompare());
     }
 
@@ -38,10 +39,11 @@ public class HTML {
                     <head>
                         <title>JSONComparator</title>
                         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                        <meta name="Author" content="Shamil Abdullin">
-                        <link rel="stylesheet" type="text/css" href="style.css">
+                        <meta name="Author" content="Shamil Abdullin"> 
+                        <style>""" + getAllStyles() + """
+                        </style>
                     </head>
-                    <body>""" + getContentHeader() + """
+                    <body>\n""" + getContentHeader() + """
                         <div class="main-content">
                             """ + printStatisticsAndConfigs() + """      
                             """ + printLinksHeader() + """    
@@ -101,6 +103,34 @@ public class HTML {
                     </body>
                 </html>
                 """;
+    }
+
+    private String getAllStyles() {
+        return """
+                
+                body {background : #2B2B2B; margin: 0;}
+                a {color: #aa71dd;}
+                div {color: #af5b08;}
+                pre {text-wrap: wrap; margin: 0;}
+                table {background: #3C3F41; color: #939393; border: 2px solid black; border-collapse: collapse;}
+                table td {border: 1px solid black; padding: 5px;}
+                .main-content {padding-left: 5px; padding-right: 5px;}
+                .header-style {height: 95px; width: 100%; display: flex; background: #3C3F41; margin-bottom: 20px;}
+                .header-style h2 {text-align: center; margin-top: 30px; color: #ff8d00;}
+                .header-center {flex-grow: 1;}
+                .header-center h2 {font-size: 30px;}
+                .header-right {width: 256px; text-align: right; padding: 5px;}
+                .header1 {font-size: 20px; text-align: center;}
+                .header2 {text-align: center; font-size: 18px;}
+                .duplicates {min-width: 450px;}
+                .configAndStatistics .data td {min-width: 380px;}
+                .centering {margin: 0 auto;}
+                .data td {text-align: left; vertical-align: top; font-family: monospace;}
+                .main-table td {width: 33%;}
+                .file-list {padding-bottom: 15px;}
+                #footer-background {background: #000000; padding: 15px;}
+                #footer {height: 35px; margin: 0 auto; max-width: 900px; font-weight: bold;}
+                #footer div {width: 33%; float: left;}""".indent(10);
     }
 
     private String printLinksFooter() {

@@ -3,8 +3,6 @@ package com.shamilabd;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,18 +38,24 @@ public class Configuration {
 
     private void createConfigExample(String path) { // TODO: обновить перед релизом и добавить файл readme с описанием по заполнению
         String text = """
-                {
-                  "firstFilePath" : "C:\\\\Work\\\\test.json or C:/Work/test.json or test.json - for relative path",
-                  "secondFilePath" : "test2.json",
-                  "compareKeysArrayPath" : "KeyName1.KeyName2.KeyName3",
-                  "compareKeys" : ["name", "intValue", "floatValue", "date"],
-                  "configFileVersion" : 1
-                }""";
-        try (FileWriter writer = new FileWriter(path)) {
-            writer.write(text);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+              {
+                "firstFilePath" : "C:\\\\Work\\\\test.json or C:/Work/test.json or test.json - for relative path",
+                "secondFilePath" : "test2.json",
+                "compareKeysArrayPath" : "KeyName1.KeyName2.KeyName3 or KeyName or just empty string",
+                "compareKeys" : ["name", "intValue", "floatValue", "date"],
+                "nullAsNotEqual" : false,
+                "showFullyMatched" : true,
+                "showPartialMatched" : true,
+                "showNotMatched" : true,
+                "showOnlyCompareKeys" : false,
+                "openResultAfterCompare" : true,
+                "addRowNumber" : false,
+                "addCommaBetweenObjects" : true,
+                "findDuplicatesInFiles" : true,
+                "leftIndentsInObject" : 2,
+                "configFileVersion" : 1
+              }""";
+        Utils.saveInFile(path, text);
     }
 
     private void checkVersionCompatibility() {
@@ -73,7 +77,11 @@ public class Configuration {
 
         firstFilePath = rootJSON.getString("firstFilePath");
         secondFilePath = rootJSON.getString("secondFilePath");
-        compareKeysArrayPath = rootJSON.getString("compareKeysArrayPath");
+        if (rootJSON.isNull("compareKeysArrayPath")){
+            compareKeysArrayPath = "";
+        } else {
+            compareKeysArrayPath = rootJSON.getString("compareKeysArrayPath");
+        }
         nullAsNotEqual = rootJSON.getBoolean("nullAsNotEqual");
         showFullyMatched = rootJSON.getBoolean("showFullyMatched");
         showPartialMatched = rootJSON.getBoolean("showPartialMatched");
@@ -87,9 +95,13 @@ public class Configuration {
     }
 
     private void loadCompareKeys() {
+        RuntimeException notFillCompareKeys = new RuntimeException("Не заполнен массив с ключами для сранения объектов.");
+        if (rootJSON.isNull("compareKeys")) {
+            throw notFillCompareKeys;
+        }
         JSONArray values = (JSONArray) rootJSON.get("compareKeys");
         if (values.isEmpty()) {
-            throw new RuntimeException("Не заполнен массив с ключами для сранения объектов.");
+            throw notFillCompareKeys;
         }
         for (Object value : values) {
             compareKeys.add((String) value);

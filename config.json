@@ -9,8 +9,8 @@
   "showNotMatched" : true,
   "showOnlyCompareKeys" : false,
   "openResultAfterCompare" : true,
-  "addRowNumber" : true,
-  "addCommaBetweenObjects" : false,
+  "addRowNumber" : false,
+  "addCommaBetweenObjects" : true,
   "findDuplicatesInFiles" : true,
   "leftIndentsInObject" : 2,
   "configFileVersion" : 1
