@@ -13,5 +13,5 @@
   "addCommaBetweenObjects" : false,
   "findDuplicatesInFiles" : true,
   "leftIndentsInObject" : 2,
-  "JSONComparatorVersion" : 1
+  "configFileVersion" : 1
 }

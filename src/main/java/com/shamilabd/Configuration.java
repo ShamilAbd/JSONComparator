@@ -13,7 +13,7 @@ public class Configuration {
     private String firstFilePath;
     private String secondFilePath;
     private String compareKeysArrayPath;
-    private Integer jsonComparatorVersion;
+    private Integer configFileVersion;
     private Boolean nullAsNotEqual;
     private Boolean showFullyMatched;
     private Boolean showPartialMatched;
@@ -38,14 +38,14 @@ public class Configuration {
         loadParameters();
     }
 
-    private void createConfigExample(String path) { // TODO: обновить перед релизом
+    private void createConfigExample(String path) { // TODO: обновить перед релизом и добавить файл readme с описанием по заполнению
         String text = """
                 {
                   "firstFilePath" : "C:\\\\Work\\\\test.json or C:/Work/test.json or test.json - for relative path",
                   "secondFilePath" : "test2.json",
                   "compareKeysArrayPath" : "KeyName1.KeyName2.KeyName3",
                   "compareKeys" : ["name", "intValue", "floatValue", "date"],
-                  "JSONComparatorVersion" : 1
+                  "configFileVersion" : 1
                 }""";
         try (FileWriter writer = new FileWriter(path)) {
             writer.write(text);
@@ -55,16 +55,16 @@ public class Configuration {
     }
 
     private void checkVersionCompatibility() {
-        if (rootJSON.has("JSONComparatorVersion")) {
-            jsonComparatorVersion = (Integer) rootJSON.get("JSONComparatorVersion");
+        if (rootJSON.has("configFileVersion")) {
+            configFileVersion = (Integer) rootJSON.get("configFileVersion");
         } else {
-            throw new RuntimeException("В файле config.json не заполнен ключ \"JSONComparatorVersion\".");
+            throw new RuntimeException("В файле config.json не заполнен ключ \"configFileVersion\".");
         }
 
-        if (jsonComparatorVersion != currentJsonComparatorVersion) {
+        if (configFileVersion != currentJsonComparatorVersion) {
             throw new RuntimeException("Версия config.json не соответствует версии программы:\n"
                     + "Версия программы: " + currentJsonComparatorVersion + "\n"
-                    + "Версия файла: " + jsonComparatorVersion);
+                    + "Версия файла: " + configFileVersion);
         }
     }
 
@@ -108,8 +108,8 @@ public class Configuration {
         return compareKeysArrayPath;
     }
 
-    public int getJsonComparatorVersion() {
-        return jsonComparatorVersion;
+    public int getConfigFileVersion() {
+        return configFileVersion;
     }
 
     public List<String> getCompareKeys() {
@@ -177,7 +177,7 @@ public class Configuration {
         System.out.println(configuration.getLeftIndentsInObject());
         System.out.println(configuration.getAddRowNumber());
         System.out.println(configuration.getAddCommaBetweenObjects());
-        System.out.println(configuration.getJsonComparatorVersion());
+        System.out.println(configuration.getConfigFileVersion());
         System.out.println(configuration.getFindDuplicatesInFiles());
         System.out.println(configuration.getCurrentJsonComparatorVersion());
     }

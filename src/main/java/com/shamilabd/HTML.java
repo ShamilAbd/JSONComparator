@@ -26,6 +26,7 @@ public class HTML {
         // TODO: зашить стили и картинку в jar
         JSONComparator comparator = new JSONComparator();
         HTML resultPage = new HTML(comparator);
+        //System.out.println(HTML.class.getResource("/style.css").getPath());
         Utils.saveInFile(resultPage.getHtmlFilePath(), resultPage.getHTMLContent());
         resultPage.openInSystem(resultPage.configuration.getOpenResultAfterCompare());
     }
