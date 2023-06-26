@@ -21,6 +21,8 @@ public class JSONComparator {
     private final Set<JSONObject> halfMatchedSecond = new HashSet<>();
     private final List<JSONObject> notMatchedFirst = new ArrayList<>();
     private final List<JSONObject> notMatchedSecond = new ArrayList<>();
+    private final List<JSONObject> firstFileDuplicates = new ArrayList<>();
+    private final List<JSONObject> secondFileDuplicates = new ArrayList<>();
     private int firstListSize;
     private int secondListSize;
 
@@ -89,10 +91,25 @@ public class JSONComparator {
     }
 
     private void compare() {
+        if (configuration.getFindDuplicatesInFiles()) {
+            findDuplicates(firstList, firstFileDuplicates);
+            findDuplicates(secondList, secondFileDuplicates);
+        }
         findFullMatch();
         findHalfMatch();
         findHalfMatchInOtherList(notMatchedFirst, halfMatchedSecond, halfMatchedFirst);
         findHalfMatchInOtherList(notMatchedSecond, halfMatchedFirst, halfMatchedSecond);
+    }
+
+    private void findDuplicates(List<JSONObject> objects, List<JSONObject> duplicates) {
+        for (int i = 0; i < objects.size(); i++) {
+            JSONObject object = objects.get(i);
+            for (int j = i + 1; j < objects.size(); j++) {
+                if (object.toString().equals(objects.get(j).toString())) {
+                    duplicates.add(object);
+                }
+            }
+        }
     }
 
     private void findFullMatch() {
@@ -116,7 +133,6 @@ public class JSONComparator {
     }
 
     private void findHalfMatch() {
-        boolean nullAsNotEqual = configuration.getNullAsNotEqual();
         boolean halfEquals;
 
         List<JSONObject> firstListCopy = new ArrayList<>(firstList);
@@ -130,17 +146,7 @@ public class JSONComparator {
                 halfEquals = false;
                 for (String key : configuration.getCompareKeys()) {
                     try {
-                        if (nullAsNotEqual) {
-                            if (!mainObj.isNull(key) && !compareObj.isNull(key) && mainObj.get(key).equals(compareObj.get(key))) {
-                                if (!halfEquals) {
-                                    halfEquals = true;
-                                }
-                            }
-                        } else if (mainObj.get(key).equals(compareObj.get(key))) {
-                            if (!halfEquals) {
-                                halfEquals = true;
-                            }
-                        }
+                        halfEquals = isHalfEquals(halfEquals, mainObj, compareObj, key);
                     } catch (JSONException e) {
                         throw new RuntimeException("В сравниваемых файлах не найден ключ \"" + key + "\".");
                     }
@@ -163,8 +169,23 @@ public class JSONComparator {
         }
     }
 
-    private void findHalfMatchInOtherList(List<JSONObject> notMatchedMain, Set<JSONObject>halfMatchedSecond, Set<JSONObject> halfMatchedMain) {
+    private boolean isHalfEquals(boolean halfEquals, JSONObject mainObj, JSONObject compareObj, String key) {
         boolean nullAsNotEqual = configuration.getNullAsNotEqual();
+        if (nullAsNotEqual) {
+            if (!mainObj.isNull(key) && !compareObj.isNull(key) && mainObj.get(key).equals(compareObj.get(key))) {
+                if (!halfEquals) {
+                    halfEquals = true;
+                }
+            }
+        } else if (mainObj.get(key).equals(compareObj.get(key))) {
+            if (!halfEquals) {
+                halfEquals = true;
+            }
+        }
+        return halfEquals;
+    }
+
+    private void findHalfMatchInOtherList(List<JSONObject> notMatchedMain, Set<JSONObject>halfMatchedSecond, Set<JSONObject> halfMatchedMain) {
         boolean halfEquals;
 
         List<JSONObject> notMatchedFirstCopy = new ArrayList<>(notMatchedMain);
@@ -177,17 +198,7 @@ public class JSONComparator {
             for (JSONObject compareObj : halfMatchedFirstCopy) {
                 halfEquals = false;
                 for (String key : configuration.getCompareKeys()) {
-                    if (nullAsNotEqual) {
-                        if (!mainObj.isNull(key) && !compareObj.isNull(key) && mainObj.get(key).equals(compareObj.get(key))) {
-                            if (!halfEquals) {
-                                halfEquals = true;
-                            }
-                        }
-                    } else if (mainObj.get(key).equals(compareObj.get(key))) {
-                        if (!halfEquals) {
-                            halfEquals = true;
-                        }
-                    }
+                    halfEquals = isHalfEquals(halfEquals, mainObj, compareObj, key);
                 }
                 if (halfEquals) {
                     halfMatchedMain.add(mainObj);
@@ -235,5 +246,13 @@ public class JSONComparator {
 
     public int getSecondListSize() {
         return secondListSize;
+    }
+
+    public List<JSONObject> getFirstFileDuplicates() {
+        return firstFileDuplicates;
+    }
+
+    public List<JSONObject> getSecondFileDuplicates() {
+        return secondFileDuplicates;
     }
 }

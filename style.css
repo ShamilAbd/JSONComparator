@@ -1,5 +1,32 @@
-html {
+body {
   background : #2B2B2B;
+  margin: 0;
+}
+.main-content {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+.header-style {
+    height: 95px;
+    width: 100%;
+    display: flex;
+    background: #3C3F41;
+    margin-bottom: 20px;
+}
+.header-left {
+  width: 256px;
+}
+.header-center {
+  flex-grow: 1; 
+  height: 95px;
+}
+.header-center h2 {
+  font-size: 30px;
+}
+.header-right {
+  width: 256px; 
+  text-align: right;
+  padding: 5px;
 }
 a {
   color: #aa71dd;
@@ -16,32 +43,27 @@ table {
 }
 table td { 
   border: 1px solid black;  
+  padding: 5px; 
 }
-.configAndStatisticsDiv {
-  
-    border: 1px black solid;
-    border-radius: 30px;
-    display: block;
+.header1 {
+  font-size: 20px;
+  text-align: center;
+  vertical-align: middle;
+} 
+.header2 {
+ text-align: center;
+ vertical-align: middle;
+ font-size: 18px;
 }
-.header-style {
-    height: 86px;
-    width: 100%;
-    display: flex;
-    background: #3C3F41;
-    margin-left: -7px;
-    margin-top: -7px;
-    margin-right: -7px;
-    padding: 7px;
-    margin-bottom: 20px;
-}
-.header-side {
-  width: 86px; 
-  height: 86px;
-}
-.header-center {
-  flex-grow: 1; 
-  height: 86px;
-}
+.duplicates {
+    min-width: 865px;
+    margin: 0 auto;
+    margin-top: 15px;
+    margin-bottom: 15px;
+} 
+#MainHeader {
+  font-size: 20px;
+} 
 .header-style h2 {
   text-align: center;
   margin-top: 30px;
@@ -49,46 +71,27 @@ table td {
 } 
 .configAndStatistics {  
   margin: 0 auto;
-} 
-.configAndStatistics td {
-  padding: 5px;
+}
+.data td {
+ text-align: left;
+ vertical-align: top;
 }
 .configAndStatistics .data td { 
  min-width: 420px; 
- text-align: left;
- vertical-align: top;
  font-family: monospace;
 } 
-.file-header {
-  font-size: 20px;
-  text-align: center;
-  vertical-align: middle;
+.main-table .data td {
+ width: 33%; 
 } 
 .file-list {
-  font-size: 16px;
-  text-align: left;
-}
-.file-list td {
   padding-bottom: 15px;
 }
-table .header td {
- text-align: center;
- vertical-align: middle;
- font-size: 18px;
-}
-.main-table .data td {
- text-align: left;
- vertical-align: top;
- width: 33%; 
-}
-.main-table .data td pre {
+pre {
  text-wrap: wrap;
-}
-.footer td {
-  padding: 15px;
+ margin: 0px;
 }
 #footer-background {
-    background: #3C3F41;
+    background: #000000;
     margin-bottom: -7px;
     margin-left: -7px;
     margin-right: -7px;
@@ -98,19 +101,9 @@ table .header td {
   height: 35px;
   margin: 0 auto;
   max-width: 900px;
+  font-weight: bold;
 }
-#DateTime {
+#footer div {
   width: 33%; 
   float: left;
-}
-#Version {
-  width: 33%;
-  float: left;  
-}
-#Author {
-  width: 33%;
-  float: left;  
-}
-#footer {
-  font-weight: bold;
 }

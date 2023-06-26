@@ -22,6 +22,7 @@ public class Configuration {
     private Boolean openResultAfterCompare;
     private Boolean addRowNumber;
     private Boolean addCommaBetweenObjects;
+    private Boolean findDuplicatesInFiles;
     private int leftIndentsInObject;
     private final int currentJsonComparatorVersion = 1;
     private final List<String> compareKeys = new ArrayList<>();
@@ -81,6 +82,7 @@ public class Configuration {
         addRowNumber = rootJSON.getBoolean("addRowNumber");
         addCommaBetweenObjects = rootJSON.getBoolean("addCommaBetweenObjects");
         openResultAfterCompare = rootJSON.getBoolean("openResultAfterCompare");
+        findDuplicatesInFiles = rootJSON.getBoolean("findDuplicatesInFiles");
         leftIndentsInObject = rootJSON.getInt("leftIndentsInObject");
     }
 
@@ -150,6 +152,10 @@ public class Configuration {
         return addCommaBetweenObjects;
     }
 
+    public Boolean getFindDuplicatesInFiles() {
+        return findDuplicatesInFiles;
+    }
+
     public int getCurrentJsonComparatorVersion() {
         return currentJsonComparatorVersion;
     }
@@ -172,6 +178,7 @@ public class Configuration {
         System.out.println(configuration.getAddRowNumber());
         System.out.println(configuration.getAddCommaBetweenObjects());
         System.out.println(configuration.getJsonComparatorVersion());
+        System.out.println(configuration.getFindDuplicatesInFiles());
         System.out.println(configuration.getCurrentJsonComparatorVersion());
     }
 }

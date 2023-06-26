@@ -1,16 +1,17 @@
 {
   "firstFilePath" : "D:/Java/Projects/JSONComparator/jsonForCompare/test.json",
   "secondFilePath" : "D:/Java/Projects/JSONComparator/jsonForCompare/test2.json",
-  "compareKeysArrayPath" : "Values.arr.arr2",
+  "compareKeysArrayPath" : "Values",
   "compareKeys" : ["sNm", "sKey"],
   "nullAsNotEqual" : true,
-  "showFullyMatched" : false,
+  "showFullyMatched" : true,
   "showPartialMatched" : true,
-  "showNotMatched" : false,
+  "showNotMatched" : true,
   "showOnlyCompareKeys" : false,
   "openResultAfterCompare" : true,
   "addRowNumber" : true,
   "addCommaBetweenObjects" : false,
+  "findDuplicatesInFiles" : true,
   "leftIndentsInObject" : 2,
   "JSONComparatorVersion" : 1
 }
