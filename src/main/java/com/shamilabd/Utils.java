@@ -8,7 +8,6 @@ public class Utils {
 
     public static String readFile(String path) {
         StringBuilder builder = new StringBuilder();
-
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             String line;
             while ((line = reader.readLine()) != null) {
@@ -17,7 +16,6 @@ public class Utils {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         return builder.toString();
     }
 
