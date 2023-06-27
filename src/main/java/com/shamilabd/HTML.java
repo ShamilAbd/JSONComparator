@@ -9,38 +9,49 @@ import java.util.List;
 import java.util.Map;
 
 public class HTML {
-    private final Configuration configuration;
+    private Configuration configuration;
+    private JSONComparator comparator;
     private final String htmlFilePath;
-    private final JSONComparator comparator;
     private int rowNumber = 0;
 
-    public HTML(JSONComparator comparator) {
-        configuration = new Configuration();
-        this.comparator = comparator;
+    public HTML() throws Exception {
+        String errorMessage = null;
+        try {
+            configuration = new Configuration();
+            comparator = new JSONComparator();
+        } catch (Exception e) {
+            errorMessage = e.getMessage();
+            e.printStackTrace();
+        }
 //        htmlFilePath = "CompareResult_" + System.currentTimeMillis() + ".html";
         htmlFilePath = "Compare_result/CompareResult.html"; // TODO: вернуть миллисекунды после отладки
+        if (errorMessage == null) {
+            saveContent(getHTMLContent());
+        } else {
+            saveContent(getErrorPage(errorMessage));
+        }
+        if (configuration != null) {
+            openInSystem(configuration.getOpenResultAfterCompare());
+        } else {
+            openInSystem(true);
+        }
     }
 
     public static void main(String[] args) throws Exception {
         // TODO: 6. Добавить md5 сумм файлов.
         // TODO: UI на свинге
         // TODO: покрыть тестами JUnit5
-        // TODO: результаты сравнения класть в отдельную папку
-        JSONComparator comparator = new JSONComparator();
-        //JSONComparator comparator =null;
-        HTML resultPage = new HTML(comparator);
-        resultPage.saveCompareResult();
-        resultPage.openInSystem(resultPage.configuration.getOpenResultAfterCompare());
+        new HTML();
     }
 
-    private void saveCompareResult() throws Exception {
+    private void saveContent(String content) throws Exception {
         Path htmlFile = Path.of(getHtmlFilePath());
         Path directory = htmlFile.getParent();
         if (!Files.exists(directory)) {
             Files.createDirectory(directory);
         }
-        Utils.saveInFile(htmlFile.toAbsolutePath().toString(), getHTMLContent());
-        Utils.saveResource(directory.toAbsolutePath().toString());
+        Utils.saveInFile(htmlFile.toAbsolutePath().toString(), content);
+        Utils.saveResources(directory.toAbsolutePath().toString());
     }
 
     public String getHTMLContent() {
@@ -413,5 +424,58 @@ public class HTML {
 
     public String getHtmlFilePath() {
         return htmlFilePath;
+    }
+
+    private String getErrorPage(String errorMessage) {
+        return """
+                <!Doctype html>
+                <html lang="ru">
+                  <head>
+                    <title>JSONComparator - ошибки при запуске</title>
+                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+                    <meta name="Author" content="Shamil Abdullin">
+                    <link rel="stylesheet" type="text/css" href="style.css">
+                  </head>
+                  <body>
+                    <div class="header-style" id="fileStart">
+                        <div class="header-left">
+                            <a href="https://github.com/ShamilAbd/JSONComparator" target="_blank"><img src="json-logo.png" alt="JSONComparator"></a>
+                        </div>
+                        <div class="header-center">
+                            <h2>Сравнение JSON файлов</h2>
+                        </div>
+                        <div class="header-right">
+                            <a href="https://github.com/ShamilAbd/JSONComparator" target="_blank"><img src="github-logo.png" alt="GitHub.com/ShamilAbd/JSONComparator"></a>
+                        </div>
+                    </div>
+                    <div class="main-content">
+                      <table class="error-table centering">
+                        <tr class="header1">
+                          <td>Ошибка в процессе сравнения</td>
+                        </tr>
+                        <tr class="data">
+                          <td scope="row">""" + errorMessage + """
+                </td>
+                        </tr>
+                      </table>
+                    </div>
+                    <div id="footer-background">
+                      <div id="footer">
+                        <div>
+                          <span>Дата и время сравнения:</span><br>
+                          <span>27.06.2023 01:02:16  </span>
+                        </div>
+                        <div>
+                          <span>Версия JSONComparator: 1</span>
+                        </div>
+                        <div>
+                          <span>Сайт проекта:</span><br>
+                          <span><a href="https://github.com/ShamilAbd/JSONComparator" target="_blank">GitHub.com/ShamilAbd/JSONComparator</a></span>
+                        </div>
+                      </div>
+                    </div>
+                  </body>
+                </html>
+                """;
     }
 }

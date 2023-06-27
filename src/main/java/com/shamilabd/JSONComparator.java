@@ -3,6 +3,8 @@ package com.shamilabd;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,7 +28,7 @@ public class JSONComparator {
     private int firstListSize;
     private int secondListSize;
 
-    public JSONComparator() {
+    public JSONComparator() throws IOException {
         configuration = new Configuration();
         firstJSON = Path.of(configuration.getFirstFilePath());
         secondJSON = Path.of(configuration.getSecondFilePath());
@@ -35,17 +37,17 @@ public class JSONComparator {
         compare();
     }
 
-    private void fillFirstJSONList() {
+    private void fillFirstJSONList() throws IOException {
         fillJSONList(configuration.getFirstFilePath(), configuration.getCompareKeysArrayPath(), firstList);
         firstListSize = firstList.size();
     }
 
-    private void fillSecondJSONList() {
+    private void fillSecondJSONList() throws IOException {
         fillJSONList(configuration.getSecondFilePath(), configuration.getCompareKeysArrayPath(), secondList);
         secondListSize = secondList.size();
     }
 
-    public void fillJSONList(String jsonFilePath, String pathToJSONArray, List<JSONObject> listForJSONObjects) {
+    public void fillJSONList(String jsonFilePath, String pathToJSONArray, List<JSONObject> listForJSONObjects) throws IOException {
         String jsonText = Utils.readFile(jsonFilePath);
         JSONArray values;
         if (configuration.getCompareKeysArrayPath().equals("")) {

@@ -3,9 +3,14 @@ package com.shamilabd;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 public class ConfigurationTest {
 
     private final Configuration configuration = new Configuration();
+
+    public ConfigurationTest() throws IOException {
+    }
 
     @Test
     void getFirstFilePath() {

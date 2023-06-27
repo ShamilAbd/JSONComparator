@@ -6,7 +6,7 @@ import java.util.Date;
 
 public class Utils {
 
-    public static String readFile(String path) {
+    public static String readFile(String path) throws IOException {
         StringBuilder builder = new StringBuilder();
         try (BufferedReader reader = new BufferedReader(new FileReader(path))) {
             String line;
@@ -15,6 +15,7 @@ public class Utils {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            throw e;
         }
         return builder.toString();
     }
@@ -36,7 +37,7 @@ public class Utils {
         }
     }
 
-    public static void saveResource(String folder) throws Exception {
+    public static void saveResources(String folder) throws Exception {
         Utils.exportResource("/json-logo.png", folder);
         Utils.exportResource("/github-logo.png", folder);
         Utils.exportResource("/style.css", folder);

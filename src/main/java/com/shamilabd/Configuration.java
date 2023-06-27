@@ -3,6 +3,7 @@ package com.shamilabd;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class Configuration {
     private final int currentJsonComparatorVersion = 1;
     private final List<String> compareKeys = new ArrayList<>();
 
-    public Configuration() {
+    public Configuration() throws IOException {
         File config = new File("config.json");
         if (!config.exists()) {
             createConfigExample(config.getAbsolutePath());
@@ -95,7 +96,7 @@ public class Configuration {
     }
 
     private void loadCompareKeys() {
-        RuntimeException notFillCompareKeys = new RuntimeException("Не заполнен массив с ключами для сранения объектов.");
+        RuntimeException notFillCompareKeys = new RuntimeException("Не заполнен массив с ключами для сранения объектов (config.json -> \"compareKeys\").");
         if (rootJSON.isNull("compareKeys")) {
             throw notFillCompareKeys;
         }
@@ -172,7 +173,7 @@ public class Configuration {
         return currentJsonComparatorVersion;
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // For simple test
         Configuration configuration = new Configuration();
 
