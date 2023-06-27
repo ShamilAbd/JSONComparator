@@ -31,9 +31,15 @@ public class Utils {
     public static void saveInFile(String path, String content) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
             writer.write(content);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void saveResource(String folder) throws Exception {
+        Utils.exportResource("/json-logo.png", folder);
+        Utils.exportResource("/github-logo.png", folder);
+        Utils.exportResource("/style.css", folder);
     }
 
     public static String getCurrentDateTime() {
@@ -41,10 +47,11 @@ public class Utils {
         return format.format(new Date());
     }
 
-    public static String exportResource(String resourceName) throws Exception {
+    public static void exportResource(String resourceName, String folder) throws Exception {
         InputStream stream = null;
         OutputStream resStreamOut = null;
-        String jarFolder;
+        //String jarFolder;
+        String totalPath;
         try {
             stream = Utils.class.getResourceAsStream(resourceName);//note that each / is a directory down in the "jar tree" been the jar the root of the tree
             if(stream == null) {
@@ -52,17 +59,17 @@ public class Utils {
             }
             int readBytes;
             byte[] buffer = new byte[4096];
-            jarFolder = new File(Utils.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getPath().replace('\\', '/');
-            resStreamOut = new FileOutputStream(jarFolder + resourceName);
+            //jarFolder = new File(Utils.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile().getPath().replace('\\', '/');
+            totalPath = folder + resourceName;//jarFolder + (folder != null ? "/" + folder : "") + resourceName;
+            resStreamOut = new FileOutputStream(totalPath);
             while ((readBytes = stream.read(buffer)) > 0) {
                 resStreamOut.write(buffer, 0, readBytes);
             }
-        } catch (Exception ex) {
-            throw ex;
         } finally {
+            assert stream != null;
             stream.close();
+            assert resStreamOut != null;
             resStreamOut.close();
         }
-        return jarFolder + resourceName;
     }
 }
