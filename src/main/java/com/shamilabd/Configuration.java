@@ -22,6 +22,8 @@ public class Configuration {
     private Boolean addRowNumber;
     private Boolean addCommaBetweenObjects;
     private Boolean findDuplicatesInFiles;
+    private Boolean ignoreCase;
+    private Boolean trimText;
     private int leftIndentsInObject;
     private final int currentJsonComparatorVersion = 1;
     private final List<String> compareKeys = new ArrayList<>();
@@ -53,6 +55,8 @@ public class Configuration {
                 "addRowNumber" : false,
                 "addCommaBetweenObjects" : true,
                 "findDuplicatesInFiles" : true,
+                "ignoreCase" : false,
+                "trimText" : false,
                 "leftIndentsInObject" : 2,
                 "configFileVersion" : 1
               }""";
@@ -92,6 +96,8 @@ public class Configuration {
         addCommaBetweenObjects = rootJSON.getBoolean("addCommaBetweenObjects");
         openResultAfterCompare = rootJSON.getBoolean("openResultAfterCompare");
         findDuplicatesInFiles = rootJSON.getBoolean("findDuplicatesInFiles");
+        ignoreCase = rootJSON.getBoolean("ignoreCase");
+        trimText = rootJSON.getBoolean("trimText");
         leftIndentsInObject = rootJSON.getInt("leftIndentsInObject");
     }
 
@@ -173,6 +179,14 @@ public class Configuration {
         return currentJsonComparatorVersion;
     }
 
+    public Boolean getIgnoreCase() {
+        return ignoreCase;
+    }
+
+    public Boolean getTrimText() {
+        return trimText;
+    }
+
     public static void main(String[] args) throws IOException {
         // For simple test
         Configuration configuration = new Configuration();
@@ -192,6 +206,8 @@ public class Configuration {
         System.out.println(configuration.getAddCommaBetweenObjects());
         System.out.println(configuration.getConfigFileVersion());
         System.out.println(configuration.getFindDuplicatesInFiles());
+        System.out.println(configuration.getIgnoreCase());
+        System.out.println(configuration.getTrimText());
         System.out.println(configuration.getCurrentJsonComparatorVersion());
     }
 }

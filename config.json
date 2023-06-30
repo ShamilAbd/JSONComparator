@@ -12,6 +12,8 @@
   "addRowNumber" : false,
   "addCommaBetweenObjects" : true,
   "findDuplicatesInFiles" : true,
+  "ignoreCase" : false,
+  "trimText" : false,
   "leftIndentsInObject" : 2,
   "configFileVersion" : 1
 }
