@@ -4,8 +4,13 @@ import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Objects;
 
 public class UI extends JFrame {
@@ -65,6 +70,12 @@ public class UI extends JFrame {
     }
 
     private void initVariables() {
+        setValuesFromConfig();
+        setListenerForCheckBox();
+
+    }
+
+    private void setValuesFromConfig() {
         file1Path.setText(configuration.getFirstFilePath());
         file2Path.setText(configuration.getSecondFilePath());
         nullAsNotEqual.setSelected(configuration.getNullAsNotEqual());
@@ -81,6 +92,44 @@ public class UI extends JFrame {
         leftIndentsInObject.setText(String.valueOf(configuration.getLeftIndentsInObject()));
         compareKeysArrayPath.setText(configuration.getCompareKeysArrayPath());
         compareKeys.setText(getListOfCompareKeys());
+    }
+
+    private void setListenerForCheckBox() {
+        nullAsNotEqual.addActionListener((a) -> {
+            System.out.println("nullAsNotEqual");
+            configuration.setNullAsNotEqual(((JCheckBox) a.getSource()).isSelected());
+        });
+        ignoreCase.addActionListener((a) -> {
+            System.out.println("ignoreCase");
+            configuration.setIgnoreCase(((JCheckBox) a.getSource()).isSelected());
+        });
+        trimText.addActionListener((a) -> {
+            configuration.setTrimText(((JCheckBox) a.getSource()).isSelected());
+        });
+        showFullyMatched.addActionListener((a) -> {
+            configuration.setShowFullyMatched(((JCheckBox) a.getSource()).isSelected());
+        });
+        showPartialMatched.addActionListener((a) -> {
+            configuration.setShowPartialMatched(((JCheckBox) a.getSource()).isSelected());
+        });
+        showNotMatched.addActionListener((a) -> {
+            configuration.setShowNotMatched(((JCheckBox) a.getSource()).isSelected());
+        });
+        showOnlyCompareKeys.addActionListener((a) -> {
+            configuration.setShowOnlyCompareKeys(((JCheckBox) a.getSource()).isSelected());
+        });
+        openResultAfterCompare.addActionListener((a) -> {
+            configuration.setOpenResultAfterCompare(((JCheckBox) a.getSource()).isSelected());
+        });
+        addRowNumber.addActionListener((a) -> {
+            configuration.setAddRowNumber(((JCheckBox) a.getSource()).isSelected());
+        });
+        addCommaBetweenObjects.addActionListener((a) -> {
+            configuration.setAddCommaBetweenObjects(((JCheckBox) a.getSource()).isSelected());
+        });
+        findDuplicatesInFiles.addActionListener((a) -> {
+            configuration.setFindDuplicatesInFiles(((JCheckBox) a.getSource()).isSelected());
+        });
     }
 
     private String getListOfCompareKeys() {
@@ -310,9 +359,65 @@ public class UI extends JFrame {
     }
 
     private void addActionListenerForButtons() {
-        saveSettings.addActionListener((actionEvent) -> System.out.println(((JButton) actionEvent.getSource()).getText()));
+        choice1File.addActionListener((actionEvent) -> {
+            JFileChooser fc = getFileFilterJSON();
+            if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                file1Path.setText(file.getAbsoluteFile().getAbsolutePath());
+                configuration.setFirstFilePath(file.getAbsoluteFile().getAbsolutePath());
+            }
+        });
+        choice2File.addActionListener((actionEvent) -> {
+            JFileChooser fc = getFileFilterJSON();
+            if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                file2Path.setText(file.getAbsoluteFile().getAbsolutePath());
+                configuration.setSecondFilePath(file.getAbsoluteFile().getAbsolutePath());
+            }
+        });
+        saveSettings.addActionListener((actionEvent) -> {
+            // TODO: починить
+            String value = leftIndentsInObject.getText().trim();
+            if (value.equals("")) {
+                configuration.setLeftIndentsInObject(0);
+            }
+            int newValue = Integer.parseInt(value);
+            if (newValue < 0) {
+                configuration.setLeftIndentsInObject(0);
+            }
+
+            configuration.setCompareKeysArrayPath(compareKeysArrayPath.getText().trim());
+
+            String newKeysTextForCompare = compareKeys.getText().trim();
+            java.util.List<String> list = null;
+            if (newKeysTextForCompare.length() > 0) {
+                String[] keys = newKeysTextForCompare.split("\s*,+\s*");
+                list = new ArrayList<>(Arrays.asList(keys));
+            }
+            configuration.setCompareKeys(list);
+
+            configuration.saveConfig();
+        });
         compare.addActionListener((actionEvent) -> System.out.println(((JButton) actionEvent.getSource()).getText()));
         exit.addActionListener((actionEvent) -> System.exit(0));
+    }
+
+    private JFileChooser getFileFilterJSON() {
+        JFileChooser fc = new JFileChooser();
+        fc.setAcceptAllFileFilterUsed(false);
+        fc.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                return f.getName().toUpperCase().endsWith(".JSON") || f.isDirectory();
+            }
+
+            @Override
+            public String getDescription() {
+                return "JSON";
+            }
+        });
+        fc.setCurrentDirectory(new File("."));
+        return fc;
     }
 
     private JPanel getFooterVersionAndLink() {

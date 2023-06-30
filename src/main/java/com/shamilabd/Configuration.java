@@ -26,10 +26,11 @@ public class Configuration {
     private Boolean trimText;
     private int leftIndentsInObject;
     private final int currentJsonComparatorVersion = 1;
-    private final List<String> compareKeys = new ArrayList<>();
+    private List<String> compareKeys = new ArrayList<>();
+    public final String configFileName = "config.json";
 
     public Configuration() throws IOException {
-        File config = new File("config.json");
+        File config = new File(configFileName );
         if (!config.exists()) {
             createConfigExample(config.getAbsolutePath());
             throw new RuntimeException("В папке был создан config.json файл, заполните его и запустите программу снова.");
@@ -209,5 +210,94 @@ public class Configuration {
         System.out.println(configuration.getIgnoreCase());
         System.out.println(configuration.getTrimText());
         System.out.println(configuration.getCurrentJsonComparatorVersion());
+    }
+
+    public void saveConfig() {
+        rootJSON.put("firstFilePath", firstFilePath);
+        rootJSON.put("secondFilePath", secondFilePath);
+        rootJSON.put("compareKeysArrayPath", compareKeysArrayPath);
+        rootJSON.put("compareKeys", compareKeys);
+        rootJSON.put("nullAsNotEqual", nullAsNotEqual);
+        rootJSON.put("showFullyMatched", showFullyMatched);
+        rootJSON.put("showPartialMatched", showPartialMatched);
+        rootJSON.put("showNotMatched", showNotMatched);
+        rootJSON.put("showOnlyCompareKeys", showOnlyCompareKeys);
+        rootJSON.put("openResultAfterCompare", openResultAfterCompare);
+        rootJSON.put("addRowNumber", addRowNumber);
+        rootJSON.put("addCommaBetweenObjects", addCommaBetweenObjects);
+        rootJSON.put("findDuplicatesInFiles", findDuplicatesInFiles);
+        rootJSON.put("ignoreCase", ignoreCase);
+        rootJSON.put("trimText", trimText);
+        rootJSON.put("leftIndentsInObject", leftIndentsInObject);
+        rootJSON.put("configFileVersion", configFileVersion);
+        Utils.saveInFile(configFileName , rootJSON.toString(2));
+    }
+
+    public void setFirstFilePath(String firstFilePath) {
+        this.firstFilePath = firstFilePath;
+    }
+
+    public void setSecondFilePath(String secondFilePath) {
+        this.secondFilePath = secondFilePath;
+    }
+
+    public void setCompareKeysArrayPath(String compareKeysArrayPath) {
+        this.compareKeysArrayPath = compareKeysArrayPath;
+    }
+
+    public void setConfigFileVersion(Integer configFileVersion) {
+        this.configFileVersion = configFileVersion;
+    }
+
+    public void setNullAsNotEqual(Boolean nullAsNotEqual) {
+        this.nullAsNotEqual = nullAsNotEqual;
+    }
+
+    public void setShowFullyMatched(Boolean showFullyMatched) {
+        this.showFullyMatched = showFullyMatched;
+    }
+
+    public void setShowPartialMatched(Boolean showPartialMatched) {
+        this.showPartialMatched = showPartialMatched;
+    }
+
+    public void setShowNotMatched(Boolean showNotMatched) {
+        this.showNotMatched = showNotMatched;
+    }
+
+    public void setShowOnlyCompareKeys(Boolean showOnlyCompareKeys) {
+        this.showOnlyCompareKeys = showOnlyCompareKeys;
+    }
+
+    public void setOpenResultAfterCompare(Boolean openResultAfterCompare) {
+        this.openResultAfterCompare = openResultAfterCompare;
+    }
+
+    public void setAddRowNumber(Boolean addRowNumber) {
+        this.addRowNumber = addRowNumber;
+    }
+
+    public void setAddCommaBetweenObjects(Boolean addCommaBetweenObjects) {
+        this.addCommaBetweenObjects = addCommaBetweenObjects;
+    }
+
+    public void setFindDuplicatesInFiles(Boolean findDuplicatesInFiles) {
+        this.findDuplicatesInFiles = findDuplicatesInFiles;
+    }
+
+    public void setIgnoreCase(Boolean ignoreCase) {
+        this.ignoreCase = ignoreCase;
+    }
+
+    public void setTrimText(Boolean trimText) {
+        this.trimText = trimText;
+    }
+
+    public void setLeftIndentsInObject(int leftIndentsInObject) {
+        this.leftIndentsInObject = leftIndentsInObject;
+    }
+
+    public void setCompareKeys(List<String> compareKeys) {
+        this.compareKeys = List.copyOf(compareKeys);
     }
 }
