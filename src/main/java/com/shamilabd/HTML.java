@@ -9,13 +9,12 @@ import java.util.List;
 import java.util.Map;
 
 public class HTML {
-    private Configuration configuration;
-    private JSONComparator comparator;
+    private final Configuration configuration;
+    private final JSONComparator comparator;
     private final String htmlFilePath;
     private int rowNumber = 0;
 
     public HTML(Configuration configuration, JSONComparator comparator) {
-        String errorMessage = null;
         this.comparator = comparator;
         this.configuration = configuration;
 //        htmlFilePath = "CompareResult_" + System.currentTimeMillis() + ".html";
@@ -228,6 +227,8 @@ public class HTML {
                         Выводить полностью совпавшие элементы:\040""" + (configuration.getShowFullyMatched() ? "да" : "нет") + newLineTag + """
                         Выводить частично совпавшие элементы:\040""" + (configuration.getShowPartialMatched() ? "да" : "нет") + newLineTag + """
                         Выводить не совпавшие элементы:\040""" + (configuration.getShowNotMatched() ? "да" : "нет") + newLineTag + """
+                        Сравнивать без учета регистра:\040""" + (configuration.getIgnoreCase() ? "да" : "нет") + newLineTag + """
+                        При сравнении обрезать пробелы по краям:\040""" + (configuration.getTrimText() ? "да" : "нет") + newLineTag + """
                         Найти и вывести дубли в файлах:\040""" + (configuration.getFindDuplicatesInFiles() ? "да" : "нет") + newLineTag + """
                         Выводить объекты только по сравниваемым ключам:\040""" + (configuration.getShowOnlyCompareKeys() ? "да" : "нет") + newLineTag + """
                         Добавить порядковые номера к объектам сравнения:\040""" + (configuration.getAddRowNumber() ? "да" : "нет") + newLineTag + """
@@ -400,58 +401,5 @@ public class HTML {
 
     public String getHtmlFilePath() {
         return htmlFilePath;
-    }
-
-    private String getErrorPage(String errorMessage) {
-        return """
-                <!Doctype html>
-                <html lang="ru">
-                  <head>
-                    <title>JSONComparator - ошибки при запуске</title>
-                    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                    <meta name="Author" content="Shamil Abdullin">
-                    <link rel="stylesheet" type="text/css" href="style.css">
-                  </head>
-                  <body>
-                    <div class="header-style" id="fileStart">
-                        <div class="header-left">
-                            <a href="https://github.com/ShamilAbd/JSONComparator" target="_blank"><img src="json-logo.png" alt="JSONComparator"></a>
-                        </div>
-                        <div class="header-center">
-                            <h2>Сравнение JSON файлов</h2>
-                        </div>
-                        <div class="header-right">
-                            <a href="https://github.com/ShamilAbd/JSONComparator" target="_blank"><img src="github-logo.png" alt="GitHub.com/ShamilAbd/JSONComparator"></a>
-                        </div>
-                    </div>
-                    <div class="main-content">
-                      <table class="error-table centering">
-                        <tr class="header1">
-                          <td>Ошибка в процессе сравнения</td>
-                        </tr>
-                        <tr class="data">
-                          <td scope="row">""" + errorMessage + """
-                </td>
-                        </tr>
-                      </table>
-                    </div>
-                    <div id="footer-background">
-                      <div id="footer">
-                        <div>
-                          <span>Дата и время сравнения:</span><br>
-                          <span>27.06.2023 01:02:16  </span>
-                        </div>
-                        <div>
-                          <span>Версия JSONComparator: 1</span>
-                        </div>
-                        <div>
-                          <span>Сайт проекта:</span><br>
-                          <span><a href="https://github.com/ShamilAbd/JSONComparator" target="_blank">GitHub.com/ShamilAbd/JSONComparator</a></span>
-                        </div>
-                      </div>
-                    </div>
-                  </body>
-                </html>
-                """;
     }
 }

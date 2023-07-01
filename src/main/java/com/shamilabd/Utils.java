@@ -29,11 +29,9 @@ public class Utils {
         }
     }
 
-    public static void saveInFile(String path, String content) {
+    public static void saveInFile(String path, String content) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
             writer.write(content);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

@@ -13,9 +13,10 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class UI extends JFrame {
+public class GUI extends JFrame {
     public static final int APP_WIDTH = 680;
     public static final int APP_HEIGHT = 670;
+    public static final String APP_NAME = "JSON Comparator";
 
     private final Configuration configuration;
     private final JSONComparator comparator;
@@ -26,6 +27,7 @@ public class UI extends JFrame {
     private final Color textColor = new Color(175, 91, 8);
     private final Color textFieldBackgroundColor = new Color(180, 180, 180);
     private final Color linkColor = new Color(170, 113, 221);
+    private final Color headerBackground = new Color(60, 63, 65);
 
     private final JTextField file1Path = new JTextField(38);
     private final JTextField file2Path = new JTextField(38);
@@ -51,33 +53,57 @@ public class UI extends JFrame {
     private final JButton compare = new JButton("Сравнить файлы");
     private final JButton exit = new JButton("Выход");
 
-    public UI() throws HeadlessException, IOException {
-        super("JSON Comparator");
+    public GUI() throws HeadlessException, IOException {
+        super(APP_NAME);
         configuration = new Configuration();
         comparator = new JSONComparator(configuration);
         html = new HTML(configuration, comparator);
+
+        initialization();
+        add(getAppHeader(), BorderLayout.NORTH);
+        add(getAppCenter(), BorderLayout.CENTER);
+        add(getAppFooter(), BorderLayout.SOUTH);
+        revalidate();
+    }
+
+    private JPanel getAppCenter() {
+        JPanel panel = new JPanel(new FlowLayout());
+        panel.setBackground(backgroundColor);
+        panel.setBorder(new EmptyBorder(10,0,0,0));
+
+        addFilesFields(panel);
+        addCompareSettingsFields(panel);
+        addReportSettingsFields(panel);
+
+        return panel;
+    }
+
+    private void initialization() {
         initApp();
         initVariables();
-        addActionListenerForButtons();
-        add(initHeader(), BorderLayout.NORTH);
-        JPanel centerPanel = new JPanel(new FlowLayout());
-        addFilesFields(centerPanel);
-        addCompareSettings(centerPanel);
-        addReportSettings(centerPanel);
-        add(centerPanel, BorderLayout.CENTER);
-        add(footer(), BorderLayout.SOUTH);
-        centerPanel.setBackground(backgroundColor);
-        centerPanel.setBorder(new EmptyBorder(10,0,0,0));
-        this.setBackground(backgroundColor);
-        setColorForFields();
-        revalidate();
+    }
+
+    private void initApp() {
+        setUndecorated(true);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Dimension dimension = toolkit.getScreenSize();
+        setSize(APP_WIDTH, APP_HEIGHT);
+        setLocation(dimension.width / 2 - APP_WIDTH / 2,
+                dimension.height / 2 - APP_HEIGHT / 2);
+        ImageIcon appIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/app_icon.png")));
+        setIconImage(appIcon.getImage());
+        setLayout(new BorderLayout());
+        setBackground(backgroundColor);
+        //this.setResizable(false); // TODO: потом вернуть на фикс скорее всего.
         setVisible(true);
     }
 
     private void initVariables() {
         setValuesFromConfig();
         setListenerForCheckBox();
-
+        setListenerForButtons();
+        setColorForFields();
     }
 
     private void setValuesFromConfig() {
@@ -100,41 +126,28 @@ public class UI extends JFrame {
     }
 
     private void setListenerForCheckBox() {
-        nullAsNotEqual.addActionListener((a) -> {
-            System.out.println("nullAsNotEqual");
-            configuration.setNullAsNotEqual(((JCheckBox) a.getSource()).isSelected());
-        });
-        ignoreCase.addActionListener((a) -> {
-            System.out.println("ignoreCase");
-            configuration.setIgnoreCase(((JCheckBox) a.getSource()).isSelected());
-        });
-        trimText.addActionListener((a) -> {
-            configuration.setTrimText(((JCheckBox) a.getSource()).isSelected());
-        });
-        showFullyMatched.addActionListener((a) -> {
-            configuration.setShowFullyMatched(((JCheckBox) a.getSource()).isSelected());
-        });
-        showPartialMatched.addActionListener((a) -> {
-            configuration.setShowPartialMatched(((JCheckBox) a.getSource()).isSelected());
-        });
-        showNotMatched.addActionListener((a) -> {
-            configuration.setShowNotMatched(((JCheckBox) a.getSource()).isSelected());
-        });
-        showOnlyCompareKeys.addActionListener((a) -> {
-            configuration.setShowOnlyCompareKeys(((JCheckBox) a.getSource()).isSelected());
-        });
-        openResultAfterCompare.addActionListener((a) -> {
-            configuration.setOpenResultAfterCompare(((JCheckBox) a.getSource()).isSelected());
-        });
-        addRowNumber.addActionListener((a) -> {
-            configuration.setAddRowNumber(((JCheckBox) a.getSource()).isSelected());
-        });
-        addCommaBetweenObjects.addActionListener((a) -> {
-            configuration.setAddCommaBetweenObjects(((JCheckBox) a.getSource()).isSelected());
-        });
-        findDuplicatesInFiles.addActionListener((a) -> {
-            configuration.setFindDuplicatesInFiles(((JCheckBox) a.getSource()).isSelected());
-        });
+        nullAsNotEqual.addActionListener((a) ->
+                configuration.setNullAsNotEqual(((JCheckBox) a.getSource()).isSelected()));
+        ignoreCase.addActionListener((a) ->
+                configuration.setIgnoreCase(((JCheckBox) a.getSource()).isSelected()));
+        trimText.addActionListener((a) ->
+                configuration.setTrimText(((JCheckBox) a.getSource()).isSelected()));
+        showFullyMatched.addActionListener((a) ->
+                configuration.setShowFullyMatched(((JCheckBox) a.getSource()).isSelected()));
+        showPartialMatched.addActionListener((a) ->
+                configuration.setShowPartialMatched(((JCheckBox) a.getSource()).isSelected()));
+        showNotMatched.addActionListener((a) ->
+                configuration.setShowNotMatched(((JCheckBox) a.getSource()).isSelected()));
+        showOnlyCompareKeys.addActionListener((a) ->
+                configuration.setShowOnlyCompareKeys(((JCheckBox) a.getSource()).isSelected()));
+        openResultAfterCompare.addActionListener((a) ->
+                configuration.setOpenResultAfterCompare(((JCheckBox) a.getSource()).isSelected()));
+        addRowNumber.addActionListener((a) ->
+                configuration.setAddRowNumber(((JCheckBox) a.getSource()).isSelected()));
+        addCommaBetweenObjects.addActionListener((a) ->
+                configuration.setAddCommaBetweenObjects(((JCheckBox) a.getSource()).isSelected()));
+        findDuplicatesInFiles.addActionListener((a) ->
+                configuration.setFindDuplicatesInFiles(((JCheckBox) a.getSource()).isSelected()));
     }
 
     private String getListOfCompareKeys() {
@@ -152,6 +165,106 @@ public class UI extends JFrame {
         return builder.toString();
     }
 
+    private void setListenerForButtons() {
+        choice1File.addActionListener((actionEvent) -> {
+            JFileChooser fc = getFileFilterJSON();
+            if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                file1Path.setText(file.getAbsoluteFile().getAbsolutePath());
+                configuration.setFirstFilePath(file.getAbsoluteFile().getAbsolutePath());
+            }
+        });
+        choice2File.addActionListener((actionEvent) -> {
+            JFileChooser fc = getFileFilterJSON();
+            if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+                File file = fc.getSelectedFile();
+                file2Path.setText(file.getAbsoluteFile().getAbsolutePath());
+                configuration.setSecondFilePath(file.getAbsoluteFile().getAbsolutePath());
+            }
+        });
+        saveSettings.addActionListener((actionEvent) -> {
+            updateFromTextFields();
+
+            String errorMessage = null;
+            try {
+                configuration.saveConfig();
+            } catch (Exception e) {
+                e.printStackTrace();
+                errorMessage = e.getMessage();
+            }
+            if (errorMessage == null) {
+                JOptionPane.showMessageDialog(this,
+                        "Настройки успешно сохранены.",
+                        "Сохранение настроек",
+                        JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(this,
+                        errorMessage,
+                        "Сохранение настроек",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        compare.addActionListener((actionEvent) -> {
+            updateFromTextFields();
+
+            String errorMessage = null;
+            try {
+                comparator.compare();
+                html.saveContent();
+                if (configuration.getOpenResultAfterCompare()) {
+                    html.openInSystem();
+                }
+                comparator.clear();
+            } catch (Exception e) {
+                e.printStackTrace();
+                errorMessage = e.getMessage();
+            }
+            if (errorMessage != null) {
+                JOptionPane.showMessageDialog(this,
+                        errorMessage,
+                        "Ошибка при сравнении",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        });
+        exit.addActionListener((actionEvent) -> System.exit(0));
+    }
+
+    private void updateFromTextFields() {
+        String value = leftIndentsInObject.getText().trim();
+        if (value.equals("")) {
+            configuration.setLeftIndentsInObject(2);
+            leftIndentsInObject.setText("2");
+        } else {
+            int newValue = 0;
+            try {
+                newValue = Integer.parseInt(value);
+            } catch (NumberFormatException ignored) {
+            }
+            if (newValue < 0) {
+                configuration.setLeftIndentsInObject(2);
+                leftIndentsInObject.setText("2");
+            } else {
+                configuration.setLeftIndentsInObject(newValue);
+                leftIndentsInObject.setText(String.valueOf(newValue));
+            }
+        }
+
+        configuration.setFirstFilePath(file1Path.getText().trim());
+        configuration.setSecondFilePath(file2Path.getText().trim());
+        configuration.setCompareKeysArrayPath(compareKeysArrayPath.getText().trim());
+
+        String newKeysTextForCompare = compareKeys.getText().trim();
+        java.util.List<String> keys = new ArrayList<>();
+        if (newKeysTextForCompare.length() > 0) {
+            Pattern pattern = Pattern.compile("\"([a-zA-Z0-9\s.,]+)\"");
+            Matcher matcher = pattern.matcher(newKeysTextForCompare);
+            while (matcher.find()) {
+                keys.add(matcher.group(1));
+            }
+        }
+        configuration.setCompareKeys(keys);
+    }
+
     private void setColorForFields() {
         setColorAndBackgroundForElement(nullAsNotEqual);
         setColorAndBackgroundForElement(ignoreCase);
@@ -164,7 +277,6 @@ public class UI extends JFrame {
         setColorAndBackgroundForElement(addRowNumber);
         setColorAndBackgroundForElement(addCommaBetweenObjects);
         setColorAndBackgroundForElement(findDuplicatesInFiles);
-
         setColorAndBackgroundForElement(file1Path);
         setColorAndBackgroundForElement(file2Path);
         setColorAndBackgroundForElement(leftIndentsInObject);
@@ -180,26 +292,9 @@ public class UI extends JFrame {
             component.setForeground(textColor);
         }
     }
-    // TODO: м.б. окно ошибок
-    // TODO: как итог - связать оба проекта вместе
     // TODO: покрыть тестами JUnit5
 
-    private void initApp() {
-        setVisible(true);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Dimension dimension = toolkit.getScreenSize();
-        setSize(APP_WIDTH, APP_HEIGHT);
-        setLocation(dimension.width / 2 - APP_WIDTH / 2,
-                dimension.height / 2 - APP_HEIGHT / 2);
-        ImageIcon appIcon = new ImageIcon(Objects.requireNonNull(getClass().getResource("/app_icon.png")));
-        setIconImage(appIcon.getImage());
-        setLayout(new BorderLayout());
-        setBackground(backgroundColor);
-        //this.setResizable(false); // TODO: потом вернуть на фикс скорее всего.
-    }
-
-    private JPanel initHeader() {
+    private JPanel getAppHeader() {
         JPanel panel = new JPanel(new BorderLayout());
 
         ImageIcon jsonLogoImg = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/json-logo.png")));
@@ -221,7 +316,7 @@ public class UI extends JFrame {
         JLabel header = new JLabel("JSON Comparator");
         header.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         header.addMouseListener(new GitHubPageAction());
-        header.setFont(new Font("Times New Roman", Font.BOLD, 24));
+        header.setFont(new Font(configuration.getFontName(), Font.BOLD, 24));
         header.setForeground(new Color(255, 141, 0));
 
         JPanel buttonPane = new JPanel();
@@ -233,7 +328,7 @@ public class UI extends JFrame {
         panel.add(buttonPane, BorderLayout.CENTER);
         panel.add(jsonLogo, BorderLayout.WEST);
         panel.add(gitHubLogo, BorderLayout.EAST);
-        panel.setBackground(new Color(60, 63, 65));
+        panel.setBackground(headerBackground);
         buttonPane.setBackground(panel.getBackground());
         panel.setBorder(new EmptyBorder(3,0,3,3));
         return panel;
@@ -281,7 +376,7 @@ public class UI extends JFrame {
         mainFrame.add(panel);
     }
 
-    private void addCompareSettings(JPanel mainFrame) {
+    private void addCompareSettingsFields(JPanel mainFrame) {
         GridLayout layout = new GridLayout(6,1);
         JPanel panel = new JPanel(layout);
 
@@ -300,7 +395,7 @@ public class UI extends JFrame {
         mainFrame.add(panel);
     }
 
-    private void addReportSettings(JPanel mainFrame) {
+    private void addReportSettingsFields(JPanel mainFrame) {
         GridLayout layout = new GridLayout(4,2);
         JPanel panel = new JPanel(layout);
 
@@ -343,7 +438,7 @@ public class UI extends JFrame {
         return panel;
     }
 
-    private JPanel footer() {
+    private JPanel getAppFooter() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.add(getControlButtons(), BorderLayout.NORTH);
         panel.add(getFooterVersionAndLink(), BorderLayout.SOUTH);
@@ -364,78 +459,6 @@ public class UI extends JFrame {
         commonPanel.setBackground(backgroundColor);
         panel.setBackground(backgroundColor);
         return commonPanel;
-    }
-
-    private void addActionListenerForButtons() {
-        choice1File.addActionListener((actionEvent) -> {
-            JFileChooser fc = getFileFilterJSON();
-            if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                File file = fc.getSelectedFile();
-                file1Path.setText(file.getAbsoluteFile().getAbsolutePath());
-                configuration.setFirstFilePath(file.getAbsoluteFile().getAbsolutePath());
-            }
-        });
-        choice2File.addActionListener((actionEvent) -> {
-            JFileChooser fc = getFileFilterJSON();
-            if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-                File file = fc.getSelectedFile();
-                file2Path.setText(file.getAbsoluteFile().getAbsolutePath());
-                configuration.setSecondFilePath(file.getAbsoluteFile().getAbsolutePath());
-            }
-        });
-        saveSettings.addActionListener((actionEvent) -> {
-            String value = leftIndentsInObject.getText().trim();
-            if (value.equals("")) {
-                configuration.setLeftIndentsInObject(0);
-                leftIndentsInObject.setText("0");
-            } else {
-                int newValue = 0;
-                try {
-                    newValue = Integer.parseInt(value);
-                } catch (NumberFormatException e) {
-                    newValue = 0;
-                }
-                if (newValue < 0) {
-                    configuration.setLeftIndentsInObject(0);
-                    leftIndentsInObject.setText("0");
-                } else {
-                    configuration.setLeftIndentsInObject(newValue);
-                    leftIndentsInObject.setText(String.valueOf(newValue));
-                }
-            }
-
-            configuration.setFirstFilePath(file1Path.getText().trim());
-            configuration.setSecondFilePath(file2Path.getText().trim());
-            configuration.setCompareKeysArrayPath(compareKeysArrayPath.getText().trim());
-
-            String newKeysTextForCompare = compareKeys.getText().trim();
-            java.util.List<String> keys = new ArrayList<>();
-            if (newKeysTextForCompare.length() > 0) {
-                Pattern pattern = Pattern.compile("\"([a-zA-Z0-9\s.,]+)\"");
-                Matcher matcher = pattern.matcher(newKeysTextForCompare);
-                while (matcher.find()) {
-                    keys.add(matcher.group(1));
-                }
-            }
-            configuration.setCompareKeys(keys);
-            configuration.saveConfig();
-        });
-        compare.addActionListener((actionEvent) -> {
-            try {
-                comparator.compare();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                html.saveContent();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            if (configuration.getOpenResultAfterCompare()) {
-                html.openInSystem();
-            }
-        });
-        exit.addActionListener((actionEvent) -> System.exit(0));
     }
 
     private JFileChooser getFileFilterJSON() {
@@ -462,24 +485,20 @@ public class UI extends JFrame {
         JPanel link = new JPanel();
         link.setLayout(new BorderLayout());
 
-        JLabel versionLabel = new JLabel("Версия JSONComparator: " + configuration.getCurrentJsonComparatorVersion());
-        versionLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        versionLabel.addMouseListener(new GitHubPageAction());
-        versionLabel.setFont(new Font("Times New Roman", Font.BOLD, 14));
+        JLabel versionLabel = new JLabel("Версия JSON Comparator: " + configuration.getCurrentJsonComparatorVersion());
+        versionLabel.setFont(new Font(configuration.getFontName(), Font.BOLD, 14));
         versionLabel.setForeground(textColor);
         version.add(versionLabel);
 
         JLabel linkLabel = new JLabel("Сайт проекта:");
-        linkLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        linkLabel.addMouseListener(new GitHubPageAction());
-        linkLabel.setFont(new Font("Times New Roman", Font.BOLD, 14));
+        linkLabel.setFont(new Font(configuration.getFontName(), Font.BOLD, 14));
         linkLabel.setForeground(textColor);
         link.add(linkLabel, BorderLayout.NORTH);
 
         JLabel URLLabel = new JLabel("GitHub.com/ShamilAbd/JSONComparator");
         URLLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         URLLabel.addMouseListener(new GitHubPageAction());
-        URLLabel.setFont(new Font("Times New Roman", Font.BOLD, 12));
+        URLLabel.setFont(new Font(configuration.getFontName(), Font.BOLD, 12));
         URLLabel.setForeground(linkColor);
         link.add(URLLabel, BorderLayout.SOUTH);
 
@@ -494,17 +513,10 @@ public class UI extends JFrame {
 
     public static void main(String[] args) {
         try {
-            new UI();
+            new GUI();
         } catch (IOException e) {
             e.printStackTrace();
         }
         //printAllFonts();
-    }
-
-    public static void printAllFonts() {
-        String[] fonts = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
-        for (String font : fonts) {
-            System.out.println(font);
-        }
     }
 }

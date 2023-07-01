@@ -12,7 +12,8 @@ public class Configuration {
     private String firstFilePath;
     private String secondFilePath;
     private String compareKeysArrayPath;
-    private Integer configFileVersion;
+    private String fontName;
+    private String configFileVersion;
     private Boolean nullAsNotEqual;
     private Boolean showFullyMatched;
     private Boolean showPartialMatched;
@@ -25,7 +26,7 @@ public class Configuration {
     private Boolean ignoreCase;
     private Boolean trimText;
     private int leftIndentsInObject;
-    private final int currentJsonComparatorVersion = 1;
+    private final String currentJsonComparatorVersion = "1.0";
     private List<String> compareKeys = new ArrayList<>();
     public final String configFileName = "config.json";
 
@@ -40,7 +41,7 @@ public class Configuration {
         loadParameters();
     }
 
-    private void createConfigExample(String path) { // TODO: обновить перед релизом и добавить файл readme с описанием по заполнению
+    private void createConfigExample(String path) throws IOException { // TODO: обновить перед релизом и добавить файл readme с описанием по заполнению
         String text = """
               {
                 "firstFilePath" : "C:\\\\Work\\\\test.json or C:/Work/test.json or test.json - for relative path",
@@ -66,12 +67,12 @@ public class Configuration {
 
     private void checkVersionCompatibility() {
         if (rootJSON.has("configFileVersion")) {
-            configFileVersion = (Integer) rootJSON.get("configFileVersion");
+            configFileVersion = (String) rootJSON.get("configFileVersion");
         } else {
             throw new RuntimeException("В файле config.json не заполнен ключ \"configFileVersion\".");
         }
 
-        if (configFileVersion != currentJsonComparatorVersion) {
+        if (!configFileVersion.equals(currentJsonComparatorVersion)) {
             throw new RuntimeException("Версия config.json не соответствует версии программы:\n"
                     + "Версия программы: " + currentJsonComparatorVersion + "\n"
                     + "Версия файла: " + configFileVersion);
@@ -83,6 +84,7 @@ public class Configuration {
 
         firstFilePath = rootJSON.getString("firstFilePath");
         secondFilePath = rootJSON.getString("secondFilePath");
+        fontName = rootJSON.getString("fontName");
         if (rootJSON.isNull("compareKeysArrayPath")){
             compareKeysArrayPath = "";
         } else {
@@ -103,14 +105,7 @@ public class Configuration {
     }
 
     private void loadCompareKeys() {
-//        RuntimeException notFillCompareKeys = new RuntimeException("Не заполнен массив с ключами для сранения объектов (config.json -> \"compareKeys\").");
-//        if (rootJSON.isNull("compareKeys")) {
-//            throw notFillCompareKeys;
-//        }
         JSONArray values = (JSONArray) rootJSON.get("compareKeys");
-//        if (values.isEmpty()) {
-//            throw notFillCompareKeys;
-//        }
         for (Object value : values) {
             compareKeys.add((String) value);
         }
@@ -128,7 +123,7 @@ public class Configuration {
         return compareKeysArrayPath;
     }
 
-    public int getConfigFileVersion() {
+    public String getConfigFileVersion() {
         return configFileVersion;
     }
 
@@ -176,7 +171,7 @@ public class Configuration {
         return findDuplicatesInFiles;
     }
 
-    public int getCurrentJsonComparatorVersion() {
+    public String getCurrentJsonComparatorVersion() {
         return currentJsonComparatorVersion;
     }
 
@@ -212,7 +207,7 @@ public class Configuration {
         System.out.println(configuration.getCurrentJsonComparatorVersion());
     }
 
-    public void saveConfig() {
+    public void saveConfig() throws IOException {
         rootJSON.put("firstFilePath", firstFilePath);
         rootJSON.put("secondFilePath", secondFilePath);
         rootJSON.put("compareKeysArrayPath", compareKeysArrayPath);
@@ -243,10 +238,6 @@ public class Configuration {
 
     public void setCompareKeysArrayPath(String compareKeysArrayPath) {
         this.compareKeysArrayPath = compareKeysArrayPath;
-    }
-
-    public void setConfigFileVersion(Integer configFileVersion) {
-        this.configFileVersion = configFileVersion;
     }
 
     public void setNullAsNotEqual(Boolean nullAsNotEqual) {
@@ -299,5 +290,9 @@ public class Configuration {
 
     public void setCompareKeys(List<String> compareKeys) {
         this.compareKeys = List.copyOf(compareKeys);
+    }
+
+    public String getFontName() {
+        return fontName;
     }
 }

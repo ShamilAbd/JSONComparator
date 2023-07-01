@@ -28,8 +28,68 @@ public class JSONComparator {
     private int firstListSize;
     private int secondListSize;
 
-    public JSONComparator(Configuration configuration) throws IOException {
+    public JSONComparator(Configuration configuration) {
         this.configuration = configuration;
+    }
+
+    public void compare() throws IOException {
+        checkBeforeFillLists();
+        firstJSON = Path.of(configuration.getFirstFilePath());
+        secondJSON = Path.of(configuration.getSecondFilePath());
+        fillFirstJSONList();
+        fillSecondJSONList();
+        checkBeforeCompare();
+        if (configuration.getFindDuplicatesInFiles()) {
+            findDuplicates(firstList, firstFileDuplicates);
+            findDuplicates(secondList, secondFileDuplicates);
+        }
+        findFullMatch();
+        findHalfMatch();
+        findHalfMatchInOtherList(notMatchedFirst, halfMatchedSecond, halfMatchedFirst);
+        findHalfMatchInOtherList(notMatchedSecond, halfMatchedFirst, halfMatchedSecond);
+    }
+
+    private void checkBeforeFillLists() {
+        if (configuration.getFirstFilePath().trim().equals("")) {
+            throw new RuntimeException("Не указан путь к первому сравниваемому файлу.");
+        }
+        if (configuration.getSecondFilePath().trim().equals("")) {
+            throw new RuntimeException("Не указан путь к второму сравниваемому файлу.");
+        }
+    }
+
+    private void checkBeforeCompare() {
+        if (configuration.getCompareKeys().size() == 0) {
+            throw new RuntimeException("Не заполнен массив с ключами для сравнения объектов.");
+        }
+        if (firstList.size() == 0) {
+            throw new RuntimeException("В первом файле нет объектов для сравнения.");
+        }
+        if (secondList.size() == 0) {
+            throw new RuntimeException("Во втором файле нет объектов для сравнения.");
+        }
+        for (String key : configuration.getCompareKeys()) {
+            if (!firstList.get(0).has(key)) {
+                throw new RuntimeException("В объекте сравнения отсутствует ключ \"" + key + "\"");
+            }
+        }
+    }
+
+    public void clear() {
+        firstList.clear();
+        secondList.clear();
+        matchedFirst.clear();
+        matchedSecond.clear();
+        halfMatchedFirst.clear();
+        halfMatchedSecond.clear();
+        notMatchedFirst.clear();
+        notMatchedSecond.clear();
+        firstFileDuplicates.clear();
+        secondFileDuplicates.clear();
+        firstJSON = null;
+        secondJSON = null;
+        firstListSize = 0;
+        secondListSize = 0;
     }
 
     private void fillFirstJSONList() throws IOException {
@@ -45,11 +105,16 @@ public class JSONComparator {
     public void fillJSONList(String jsonFilePath, String pathToJSONArray, List<JSONObject> listForJSONObjects) throws IOException {
         String jsonText = Utils.readFile(jsonFilePath);
         JSONArray values;
-        if (configuration.getCompareKeysArrayPath().equals("")) {
-            values = new JSONArray(jsonText);
-        } else {
-            JSONObject rootJSON = new JSONObject(jsonText);
-            values = getJSONArrayByPath(pathToJSONArray, rootJSON);
+        try {
+            if (configuration.getCompareKeysArrayPath().equals("")) {
+                values = new JSONArray(jsonText);
+            } else {
+                JSONObject rootJSON = new JSONObject(jsonText);
+                values = getJSONArrayByPath(pathToJSONArray, rootJSON);
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            throw new RuntimeException("В строке \"Путь до сравниваемых объектов\" указан путь не до массива объектов.");
         }
         for (Object value : values) {
             listForJSONObjects.add((JSONObject) value);
@@ -60,9 +125,9 @@ public class JSONComparator {
         JSONArray values = null;
 
         if (pathToJSONArray == null || pathToJSONArray.equals("")) {
-            throw new RuntimeException("Не указан ключ объекта (config.json -> compareKeysArrayPath), внутри которого лежит сравниваемый массив.");
+            throw new RuntimeException("Не указан ключ объекта, внутри которого лежит сравниваемый массив.");
         } else if (pathToJSONArray.equals(".")) {
-            throw new RuntimeException("Ключ объекта (config.json -> compareKeysArrayPath) не может равняться точке.");
+            throw new RuntimeException("Ключ объекта не может равняться точке.");
         } else if (!pathToJSONArray.contains(".")) {
             if (!json.has(pathToJSONArray)) {
                 throw new RuntimeException("Ключ \"" + pathToJSONArray + "\" не найден в файле json.");
@@ -70,7 +135,7 @@ public class JSONComparator {
             try {
                 values = (JSONArray) json.get(pathToJSONArray);
             } catch (ClassCastException e) {
-                throw new RuntimeException("В качестве пути к массиву объектов (config.json -> compareKeysArrayPath) указан ключ, не содержащий массив.");
+                throw new RuntimeException("В качестве пути к массиву объектов указан ключ, не содержащий массив.");
             }
         } else {
             String[] pathsToJSONArray = pathToJSONArray.split("\\.");
@@ -87,21 +152,6 @@ public class JSONComparator {
         return values;
     }
 
-    public void compare() throws IOException {
-        firstJSON = Path.of(configuration.getFirstFilePath());
-        secondJSON = Path.of(configuration.getSecondFilePath());
-        fillFirstJSONList();
-        fillSecondJSONList();
-        if (configuration.getFindDuplicatesInFiles()) {
-            findDuplicates(firstList, firstFileDuplicates);
-            findDuplicates(secondList, secondFileDuplicates);
-        }
-        findFullMatch();
-        findHalfMatch();
-        findHalfMatchInOtherList(notMatchedFirst, halfMatchedSecond, halfMatchedFirst);
-        findHalfMatchInOtherList(notMatchedSecond, halfMatchedFirst, halfMatchedSecond);
-    }
-
     private void findDuplicates(List<JSONObject> objects, List<JSONObject> duplicates) {
         for (int i = 0; i < objects.size(); i++) {
             JSONObject object = objects.get(i);
@@ -115,13 +165,30 @@ public class JSONComparator {
 
     private void findFullMatch() {
         boolean nullAsNotEqual = configuration.getNullAsNotEqual();
+        boolean ignoreCase = configuration.getIgnoreCase();
+        boolean trimText = configuration.getTrimText();
+
         for (JSONObject first : firstList) {
             SECOND_LIST:
             for (int j = 0; j < secondList.size(); j++) {
                 JSONObject second = secondList.get(j);
                 for (String key : configuration.getCompareKeys()) {
-                    if ((nullAsNotEqual && (first.isNull(key) || second.isNull(key)))
-                            || (!first.get(key).equals(second.get(key)))) {
+                    if (nullAsNotEqual && (first.isNull(key) || second.isNull(key))) {
+                        continue SECOND_LIST;
+                    }
+                    if (first.get(key) instanceof String firstVal && second.get(key) instanceof String secondVal) {
+                        if (trimText) {
+                            firstVal = firstVal.trim();
+                            secondVal = secondVal.trim();
+                        }
+                        if (ignoreCase) {
+                            firstVal = firstVal.toUpperCase();
+                            secondVal = secondVal.toUpperCase();
+                        }
+                        if (!firstVal.equals(secondVal)) {
+                            continue SECOND_LIST;
+                        }
+                    } else if (!first.get(key).equals(second.get(key))) {
                         continue SECOND_LIST;
                     }
                 }
@@ -172,8 +239,41 @@ public class JSONComparator {
 
     private boolean isHalfEquals(boolean halfEquals, JSONObject mainObj, JSONObject compareObj, String key) {
         boolean nullAsNotEqual = configuration.getNullAsNotEqual();
+        boolean ignoreCase = configuration.getIgnoreCase();
+        boolean trimText = configuration.getTrimText();
+
         if (nullAsNotEqual) {
-            if (!mainObj.isNull(key) && !compareObj.isNull(key) && mainObj.get(key).equals(compareObj.get(key))) {
+            if (!mainObj.isNull(key) && !compareObj.isNull(key)) {
+                if (mainObj.get(key) instanceof String firstVal && compareObj.get(key) instanceof String secondVal) {
+                    if (trimText) {
+                        firstVal = firstVal.trim();
+                        secondVal = secondVal.trim();
+                    }
+                    if (ignoreCase) {
+                        firstVal = firstVal.toUpperCase();
+                        secondVal = secondVal.toUpperCase();
+                    }
+                    if (firstVal.equals(secondVal)) {
+                        if (!halfEquals) {
+                            halfEquals = true;
+                        }
+                    }
+                } else if (mainObj.get(key).equals(compareObj.get(key))) {
+                    if (!halfEquals) {
+                        halfEquals = true;
+                    }
+                }
+            }
+        } else if (mainObj.get(key) instanceof String firstVal && compareObj.get(key) instanceof String secondVal) {
+            if (trimText) {
+                firstVal = firstVal.trim();
+                secondVal = secondVal.trim();
+            }
+            if (ignoreCase) {
+                firstVal = firstVal.toUpperCase();
+                secondVal = secondVal.toUpperCase();
+            }
+            if (firstVal.equals(secondVal)) {
                 if (!halfEquals) {
                     halfEquals = true;
                 }
