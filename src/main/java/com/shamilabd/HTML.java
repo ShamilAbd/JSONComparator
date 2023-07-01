@@ -14,43 +14,21 @@ public class HTML {
     private final String htmlFilePath;
     private int rowNumber = 0;
 
-    public HTML() throws Exception {
+    public HTML(Configuration configuration, JSONComparator comparator) {
         String errorMessage = null;
-        try {
-            configuration = new Configuration();
-            comparator = new JSONComparator();
-        } catch (Exception e) {
-            errorMessage = e.getMessage();
-            e.printStackTrace();
-        }
+        this.comparator = comparator;
+        this.configuration = configuration;
 //        htmlFilePath = "CompareResult_" + System.currentTimeMillis() + ".html";
         htmlFilePath = "Compare_result/CompareResult.html"; // TODO: вернуть миллисекунды после отладки
-        if (errorMessage == null) {
-            saveContent(getHTMLContent());
-        } else {
-            saveContent(getErrorPage(errorMessage));
-        }
-        if (configuration != null) {
-            openInSystem(configuration.getOpenResultAfterCompare());
-        } else {
-            openInSystem(true);
-        }
     }
 
-    public static void main(String[] args) throws Exception {
-        // TODO: 6. Добавить md5 сумм файлов.
-        // TODO: UI на свинге
-        // TODO: покрыть тестами JUnit5
-        new HTML();
-    }
-
-    private void saveContent(String content) throws Exception {
+    public void saveContent() throws Exception {
         Path htmlFile = Path.of(getHtmlFilePath());
         Path directory = htmlFile.getParent();
         if (!Files.exists(directory)) {
             Files.createDirectory(directory);
         }
-        Utils.saveInFile(htmlFile.toAbsolutePath().toString(), content);
+        Utils.saveInFile(htmlFile.toAbsolutePath().toString(), getHTMLContent());
         Utils.saveResources(directory.toAbsolutePath().toString());
     }
 
@@ -416,10 +394,8 @@ public class HTML {
         return jsonObject.toString(indentFactor);
     }
 
-    public void openInSystem(boolean isNeedOpen) {
-        if (isNeedOpen) {
-            Utils.openFileInSystem(htmlFilePath);
-        }
+    public void openInSystem() {
+        Utils.openFileInSystem(htmlFilePath);
     }
 
     public String getHtmlFilePath() {

@@ -3,17 +3,20 @@
   "addCommaBetweenObjects": true,
   "configFileVersion": 1,
   "showOnlyCompareKeys": true,
-  "addRowNumber": true,
+  "addRowNumber": false,
   "openResultAfterCompare": true,
   "trimText": false,
-  "secondFilePath": "D:/Java/Projects/JSONComparator/jsonForCompare/test2.json",
-  "leftIndentsInObject": 2155,
+  "secondFilePath": "D:\\Java\\Projects\\JSONComparator\\jsonForCompare\\test2.json",
+  "leftIndentsInObject": 2,
   "showNotMatched": true,
-  "compareKeysArrayPath": "вап",
-  "ignoreCase": true,
+  "compareKeysArrayPath": "Values",
+  "ignoreCase": false,
   "nullAsNotEqual": true,
-  "firstFilePath": "D:/Java/Projects/JSONComparator/jsonForCompare/test.json",
-  "showPartialMatched": false,
-  "findDuplicatesInFiles": false,
-  "compareKeys": ["вап"]
+  "firstFilePath": "D:\\Java\\Projects\\JSONComparator\\jsonForCompare\\test.json",
+  "showPartialMatched": true,
+  "findDuplicatesInFiles": true,
+  "compareKeys": [
+    "sNm",
+    "sKey"
+  ]
 }

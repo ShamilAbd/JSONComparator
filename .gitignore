@@ -1,3 +1,5 @@
 /target/
 /.idea/
 /jsonForCompare
+/Compare_result
+jsoncomparator.iml

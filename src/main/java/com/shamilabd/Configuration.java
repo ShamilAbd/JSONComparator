@@ -30,7 +30,7 @@ public class Configuration {
     public final String configFileName = "config.json";
 
     public Configuration() throws IOException {
-        File config = new File(configFileName );
+        File config = new File(configFileName);
         if (!config.exists()) {
             createConfigExample(config.getAbsolutePath());
             throw new RuntimeException("В папке был создан config.json файл, заполните его и запустите программу снова.");
@@ -103,14 +103,14 @@ public class Configuration {
     }
 
     private void loadCompareKeys() {
-        RuntimeException notFillCompareKeys = new RuntimeException("Не заполнен массив с ключами для сранения объектов (config.json -> \"compareKeys\").");
-        if (rootJSON.isNull("compareKeys")) {
-            throw notFillCompareKeys;
-        }
+//        RuntimeException notFillCompareKeys = new RuntimeException("Не заполнен массив с ключами для сранения объектов (config.json -> \"compareKeys\").");
+//        if (rootJSON.isNull("compareKeys")) {
+//            throw notFillCompareKeys;
+//        }
         JSONArray values = (JSONArray) rootJSON.get("compareKeys");
-        if (values.isEmpty()) {
-            throw notFillCompareKeys;
-        }
+//        if (values.isEmpty()) {
+//            throw notFillCompareKeys;
+//        }
         for (Object value : values) {
             compareKeys.add((String) value);
         }

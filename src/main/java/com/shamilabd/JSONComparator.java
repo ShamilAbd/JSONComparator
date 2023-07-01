@@ -13,8 +13,8 @@ import java.util.Set;
 
 public class JSONComparator {
     private final Configuration configuration;
-    private final Path firstJSON;
-    private final Path secondJSON;
+    private Path firstJSON;
+    private Path secondJSON;
     private final List<JSONObject> firstList = new ArrayList<>();
     private final List<JSONObject> secondList = new ArrayList<>();
     private final List<JSONObject> matchedFirst = new ArrayList<>();
@@ -28,13 +28,8 @@ public class JSONComparator {
     private int firstListSize;
     private int secondListSize;
 
-    public JSONComparator() throws IOException {
-        configuration = new Configuration();
-        firstJSON = Path.of(configuration.getFirstFilePath());
-        secondJSON = Path.of(configuration.getSecondFilePath());
-        fillFirstJSONList();
-        fillSecondJSONList();
-        compare();
+    public JSONComparator(Configuration configuration) throws IOException {
+        this.configuration = configuration;
     }
 
     private void fillFirstJSONList() throws IOException {
@@ -92,7 +87,11 @@ public class JSONComparator {
         return values;
     }
 
-    private void compare() {
+    public void compare() throws IOException {
+        firstJSON = Path.of(configuration.getFirstFilePath());
+        secondJSON = Path.of(configuration.getSecondFilePath());
+        fillFirstJSONList();
+        fillSecondJSONList();
         if (configuration.getFindDuplicatesInFiles()) {
             findDuplicates(firstList, firstFileDuplicates);
             findDuplicates(secondList, secondFileDuplicates);

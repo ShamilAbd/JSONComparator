@@ -6,18 +6,20 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class UI extends JFrame {
     public static final int APP_WIDTH = 680;
     public static final int APP_HEIGHT = 670;
 
-    private final Configuration configuration = new Configuration();
+    private final Configuration configuration;
+    private final JSONComparator comparator;
+    private final HTML html;
 
     private final Color backgroundColor = new Color(43, 43, 43);
     private final Color footerBackgroundColor = Color.BLACK;
@@ -51,6 +53,9 @@ public class UI extends JFrame {
 
     public UI() throws HeadlessException, IOException {
         super("JSON Comparator");
+        configuration = new Configuration();
+        comparator = new JSONComparator(configuration);
+        html = new HTML(configuration, comparator);
         initApp();
         initVariables();
         addActionListenerForButtons();
@@ -137,7 +142,9 @@ public class UI extends JFrame {
         java.util.List<String> keys = configuration.getCompareKeys();
         int listSize = keys.size();
         for (int i = 0; i < listSize; i++) {
+            builder.append("\"");
             builder.append(keys.get(i));
+            builder.append("\"");
             if (i < listSize - 1) {
                 builder.append(", ");
             }
@@ -175,6 +182,7 @@ public class UI extends JFrame {
     }
     // TODO: м.б. окно ошибок
     // TODO: как итог - связать оба проекта вместе
+    // TODO: покрыть тестами JUnit5
 
     private void initApp() {
         setVisible(true);
@@ -376,29 +384,57 @@ public class UI extends JFrame {
             }
         });
         saveSettings.addActionListener((actionEvent) -> {
-            // TODO: починить
             String value = leftIndentsInObject.getText().trim();
             if (value.equals("")) {
                 configuration.setLeftIndentsInObject(0);
-            }
-            int newValue = Integer.parseInt(value);
-            if (newValue < 0) {
-                configuration.setLeftIndentsInObject(0);
+                leftIndentsInObject.setText("0");
+            } else {
+                int newValue = 0;
+                try {
+                    newValue = Integer.parseInt(value);
+                } catch (NumberFormatException e) {
+                    newValue = 0;
+                }
+                if (newValue < 0) {
+                    configuration.setLeftIndentsInObject(0);
+                    leftIndentsInObject.setText("0");
+                } else {
+                    configuration.setLeftIndentsInObject(newValue);
+                    leftIndentsInObject.setText(String.valueOf(newValue));
+                }
             }
 
+            configuration.setFirstFilePath(file1Path.getText().trim());
+            configuration.setSecondFilePath(file2Path.getText().trim());
             configuration.setCompareKeysArrayPath(compareKeysArrayPath.getText().trim());
 
             String newKeysTextForCompare = compareKeys.getText().trim();
-            java.util.List<String> list = null;
+            java.util.List<String> keys = new ArrayList<>();
             if (newKeysTextForCompare.length() > 0) {
-                String[] keys = newKeysTextForCompare.split("\s*,+\s*");
-                list = new ArrayList<>(Arrays.asList(keys));
+                Pattern pattern = Pattern.compile("\"([a-zA-Z0-9\s.,]+)\"");
+                Matcher matcher = pattern.matcher(newKeysTextForCompare);
+                while (matcher.find()) {
+                    keys.add(matcher.group(1));
+                }
             }
-            configuration.setCompareKeys(list);
-
+            configuration.setCompareKeys(keys);
             configuration.saveConfig();
         });
-        compare.addActionListener((actionEvent) -> System.out.println(((JButton) actionEvent.getSource()).getText()));
+        compare.addActionListener((actionEvent) -> {
+            try {
+                comparator.compare();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            try {
+                html.saveContent();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if (configuration.getOpenResultAfterCompare()) {
+                html.openInSystem();
+            }
+        });
         exit.addActionListener((actionEvent) -> System.exit(0));
     }
 
@@ -429,21 +465,21 @@ public class UI extends JFrame {
         JLabel versionLabel = new JLabel("Версия JSONComparator: " + configuration.getCurrentJsonComparatorVersion());
         versionLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         versionLabel.addMouseListener(new GitHubPageAction());
-        versionLabel.setFont(new Font("Times New Roman", Font.BOLD, 18));
+        versionLabel.setFont(new Font("Times New Roman", Font.BOLD, 14));
         versionLabel.setForeground(textColor);
         version.add(versionLabel);
 
         JLabel linkLabel = new JLabel("Сайт проекта:");
         linkLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         linkLabel.addMouseListener(new GitHubPageAction());
-        linkLabel.setFont(new Font("Times New Roman", Font.BOLD, 18));
+        linkLabel.setFont(new Font("Times New Roman", Font.BOLD, 14));
         linkLabel.setForeground(textColor);
         link.add(linkLabel, BorderLayout.NORTH);
 
         JLabel URLLabel = new JLabel("GitHub.com/ShamilAbd/JSONComparator");
         URLLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         URLLabel.addMouseListener(new GitHubPageAction());
-        URLLabel.setFont(new Font("Times New Roman", Font.BOLD, 16));
+        URLLabel.setFont(new Font("Times New Roman", Font.BOLD, 12));
         URLLabel.setForeground(linkColor);
         link.add(URLLabel, BorderLayout.SOUTH);
 
