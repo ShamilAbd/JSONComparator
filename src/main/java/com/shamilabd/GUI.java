@@ -6,6 +6,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
+import java.awt.event.ActionEvent;
 import java.awt.event.MouseAdapter;
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,7 @@ public class GUI extends JFrame {
     public static final int APP_WIDTH = 660;
     public static final int APP_HEIGHT = 630;
     public static final String APP_NAME = "JSON Comparator";
+    private final JFrame howCompareInfo = new JFrame();
 
     private final Configuration configuration;
     private final JSONComparator comparator;
@@ -83,6 +85,7 @@ public class GUI extends JFrame {
     private void initialization() {
         initApp();
         initVariables();
+        initHowCompareInfoFrame();
     }
 
     private void initApp() {
@@ -97,7 +100,6 @@ public class GUI extends JFrame {
         setIconImage(appIcon.getImage());
         setLayout(new BorderLayout());
         setBackground(backgroundColor);
-        //this.setResizable(false); // TODO: потом вернуть на фикс скорее всего.
         setVisible(true);
     }
 
@@ -184,9 +186,7 @@ public class GUI extends JFrame {
                 configuration.setSecondFilePath(file.getAbsoluteFile().getAbsolutePath());
             }
         });
-        howCompare.addActionListener((actionEvent) -> {
-            System.out.println("!!!");
-        });
+        howCompare.addActionListener((actionEvent) -> howCompareInfo.setVisible(true));
         saveSettings.addActionListener((actionEvent) -> {
             updateFromTextFields();
 
@@ -297,7 +297,126 @@ public class GUI extends JFrame {
             component.setForeground(textColor);
         }
     }
-    // TODO: покрыть тестами JUnit5
+
+    private void initHowCompareInfoFrame() {
+        howCompareInfo.setUndecorated(true);
+        int width = 700;
+        int height = 600;
+        howCompareInfo.setSize(width, height);
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Dimension dimension = toolkit.getScreenSize();
+        howCompareInfo.setLocation(dimension.width / 2 - width / 2, dimension.height / 2 - height / 2);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(addHowCompareDescription(), BorderLayout.CENTER);
+        panel.add(addExitButton(howCompareInfo), BorderLayout.SOUTH);
+        howCompareInfo.add(panel);
+        howCompareInfo.setVisible(false);
+    }
+
+    private JScrollPane addHowCompareDescription() {
+        JEditorPane pane = new JEditorPane();
+        JScrollPane jScrollPane = new JScrollPane(pane);
+        jScrollPane.setPreferredSize(new Dimension(540,400));
+        pane.setEnabled(true);
+        pane.setContentType("text/html");
+        pane.setText("""
+                <html>
+                <head>
+                <style>
+                p {font-size: 12px;}
+                </style>
+                </head>
+                <body>
+                <div>
+                <h2>Руководство пользователя</h2>
+                <p>
+                После первого запуска программы, в папке, где лежит программа,
+                будет создан файл настроек <b>"config.json"</b> со стандартными настройками
+                и примерами заполнения полей (т.е. если этого файла нет).<br>
+                Эти настройки автоматический подставляются в программу.
+                </p>
+                <p>
+                Для начала работы необходимо:<br>
+                1) Указать файлы для сравнения.<br>
+                2) Убедиться, что выставленные параметры сравнения и вывода отчета<br>
+                удовлетворяют вашим требованиям.<br>
+                3) Нажать "Сравнить файлы".<br>
+                Если в ходе работы программы возникнет ошибка,<br>
+                то будет выведено соответствующее сообщение.<br>
+                После успешного сравнения файлов, в папке с программой появится папка <b>"Compare_result"</b> с отчетом, имя файла будет примерно такое: <b>"CompareResult_1688237966862.html"</b>.<br>
+                Если был выстален признак "После сравнения открыть файл с результатами", то соответственно отчет откроется в браузере.<br>
+                Если нажать на кнопку "Сохранить настройки", то все текущие найстройки сравнения файлов и вывода отчета будут сохранены в файле <b>"config.json"</b>.
+                </p>
+                <p>
+                <h3>Более детальное описание настройки сравнения:</h3>
+                Разберем на примере такого JSON объекта:
+                <pre>
+                {
+                  "ObjectName" : "ListOKZ",
+                  "ObjectCaption" : "Общероссийский классификатор занятий",
+                  "SomeKey" : {
+                    "Version" : "1.5",
+                    "UserName" : "ShamilAbd",
+                    "KeyWithArray" : [
+                      {
+                        "key" : "123",
+                        "name" : "Руководители специализированных подразделений",
+                        "periodTo" : "30.06.2015 00:00:00",
+                        "version" : 1
+                      },
+                      {
+                        "key" : "777",
+                        "name" : "Руководители служб по сбыту, маркетингу и развитию",
+                        "periodTo" : null,
+                        "version" : 2
+                      }
+                    ]
+                  }
+                }
+                </pre>
+                </p>
+                <p>
+                1) В строку <b>"Путь до сравниваемых объектов"</b> для этого файла необходимо указать <b>"SomeKey.KeyWithArray"</b>, через точку,
+                т.к. в поле "SomeKey" лежит объект "KeyWithArray", а уже в нем лежит массив объектов, которые нужно сравнить.<br>
+                Если такой вложенности нет, то там можно указать либо сразу ключ с объектами, либо вообще указать пустую строку,
+                если сам файл представляет из себя массив объектов для сравнения.<br>
+                2) В строку "Сравниваемые ключи" необходимо в двойных кавычках перечислить список полей, которые необходимо сравнить.<br>
+                Для этого примера будет идти сравнение по трем ключам: "name", "key", "version", а "periodTo" в сравнении не будет участвовать.<br>
+                3) Если выставлен признак "Сравнение с NULL всегда "не равно"", то поля с отсутствующим значением (с null) всегда будут считаться несовпавшими.
+                Если же признак снять, то при сравнении двух null будет получен результат как совпавший.<br>
+                4) Если выставлен признак "Сравнивать без учета регистра", то при сравнении строк "Привет", "ПрИвЕт", "привет", "ПРИВЕТ" и любые другие комбинации с регистром будут считаться совпавшими.<br>
+                5) Если выставлен признак "При сравнении обрезать пробелы по краям", то при сравнении строк "Привет" и "  Привет " будут считаться совпавшими, т.к. при сравнении пробелы по концам обрежутся.<br>
+                6) Если выставлен признак "Найти и вывести дубликаты в файлах" то для каждого файла будет произведен поиск дублей объектов и их вывод в отчет.<br>
+                7) Если выставлен признак "Вывести полностью совпавшие элементы" то в отчете будет заполнен столбец "Полностью совпавшие элементы".<br>
+                8) Если выставлен признак "Вывести частично совпавшие элементы" то в отчете будет заполнен столбец "Частично совпавшие элементы".<br>
+                9) Если выставлен признак "Вывести не совпавшие элементы" то в отчете будет заполнен столбец "Не совпавшие или те, для которых не осталось объектов для сравнения".<br>
+                10) Если выставлен признак "Отчет только по сравниваемым ключам", то в отчете при выводе объекта в поля будут использованы лишь сравниваемые ключи, а не все ключи объекта. Тут проще запустить и посмотреть самому.<br>
+                11) Если выставлен признак "Добавить номера объектам", то к каждому объекту в своей колонке будет присвоен порядковый номер.<br>
+                12) Если выставлен признак "Добавить запятые между объектами", то между объектами будут добавлены запятые. Удобно, если нужно скопировать результат в какой-то JSON файл и сделать из них массив объектов.<br>
+                13) Параметр "Пробелов в объекте" указывает, сколько отступов будет добавлено на каждый уровень объекта.<br>
+                Как в примере, до "ObjectName" и "ObjectCaption" идет 2 отступа, а "Version" и "UserName" уже следующий уровнь, т.е. там уже будет 4 отступа.<br>
+                По умолчанию равно 2.
+                </p>
+                </div>
+                </body>
+                </html>
+                """);
+        return jScrollPane;
+    }
+
+    private JPanel addExitButton(JFrame frame) {
+        JPanel panel = new JPanel();
+        JButton button = new JButton("Все понятно");
+        button.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setVisible(false);
+            }
+        });
+        panel.add(button);
+        panel.setBackground(backgroundColor);
+        return panel;
+    }
 
     private JPanel getAppHeader() {
         JPanel panel = new JPanel(new BorderLayout());
