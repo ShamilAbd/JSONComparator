@@ -34,34 +34,34 @@ public class Configuration {
         File config = new File(configFileName);
         if (!config.exists()) {
             createConfigExample(config.getAbsolutePath());
-            throw new RuntimeException("В папке был создан config.json файл, заполните его и запустите программу снова.");
         }
         rootJSON = new JSONObject(Utils.readFile(config.getAbsolutePath()));
         checkVersionCompatibility();
         loadParameters();
     }
 
-    private void createConfigExample(String path) throws IOException { // TODO: обновить перед релизом и добавить файл readme с описанием по заполнению
+    private void createConfigExample(String path) throws IOException {
         String text = """
-              {
-                "firstFilePath" : "C:\\\\Work\\\\test.json or C:/Work/test.json or test.json - for relative path",
-                "secondFilePath" : "test2.json",
-                "compareKeysArrayPath" : "KeyName1.KeyName2.KeyName3 or KeyName or just empty string",
-                "compareKeys" : ["name", "intValue", "floatValue", "date"],
-                "nullAsNotEqual" : false,
-                "showFullyMatched" : true,
-                "showPartialMatched" : true,
-                "showNotMatched" : true,
-                "showOnlyCompareKeys" : false,
-                "openResultAfterCompare" : true,
-                "addRowNumber" : false,
-                "addCommaBetweenObjects" : true,
-                "findDuplicatesInFiles" : true,
-                "ignoreCase" : false,
-                "trimText" : false,
-                "leftIndentsInObject" : 2,
-                "configFileVersion" : 1
-              }""";
+                {
+                  "showFullyMatched": true,
+                  "addCommaBetweenObjects": true,
+                  "configFileVersion": "1.0",
+                  "showOnlyCompareKeys": false,
+                  "addRowNumber": false,
+                  "openResultAfterCompare": true,
+                  "trimText": false,
+                  "secondFilePath": "C:\\\\SomeDirectoryPath\\\\jsonForCompare\\\\test_2.json",
+                  "leftIndentsInObject": 2,
+                  "showNotMatched": true,
+                  "fontName": "Yu Gothic UI Semibold",
+                  "compareKeysArrayPath": "SomeKey.KeyWithArray",
+                  "ignoreCase": false,
+                  "nullAsNotEqual": true,
+                  "firstFilePath": "C:\\\\SomeDirectoryPath\\\\jsonForCompare\\\\test_1.json",
+                  "showPartialMatched": true,
+                  "findDuplicatesInFiles": true,
+                  "compareKeys": ["name", "key", "version"]
+                }""";
         Utils.saveInFile(path, text);
     }
 

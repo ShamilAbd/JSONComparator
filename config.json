@@ -1,23 +1,20 @@
 {
   "showFullyMatched": true,
-  "addCommaBetweenObjects": false,
+  "addCommaBetweenObjects": true,
   "configFileVersion": "1.0",
   "showOnlyCompareKeys": false,
-  "addRowNumber": true,
+  "addRowNumber": false,
   "openResultAfterCompare": true,
   "trimText": false,
-  "secondFilePath": "D:\\Java\\Projects\\JSONComparator\\jsonForCompare\\test2.json",
+  "secondFilePath": "C:\\Projects\\jsonForCompare\\test_2.json",
   "leftIndentsInObject": 2,
   "showNotMatched": true,
   "fontName": "Yu Gothic UI Semibold",
-  "compareKeysArrayPath": "Values.Values",
+  "compareKeysArrayPath": "SomeKey.KeyWithArray",
   "ignoreCase": false,
   "nullAsNotEqual": true,
-  "firstFilePath": "D:\\Java\\Projects\\JSONComparator\\jsonForCompare\\test.json",
+  "firstFilePath": "C:\\Projects\\jsonForCompare\\test_1.json",
   "showPartialMatched": true,
   "findDuplicatesInFiles": true,
-  "compareKeys": [
-    "sNm",
-    "sKey"
-  ]
+  "compareKeys": ["name", "key", "version"]
 }

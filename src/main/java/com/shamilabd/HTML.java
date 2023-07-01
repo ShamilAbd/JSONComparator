@@ -11,17 +11,16 @@ import java.util.Map;
 public class HTML {
     private final Configuration configuration;
     private final JSONComparator comparator;
-    private final String htmlFilePath;
     private int rowNumber = 0;
+    private String htmlFilePath;
 
     public HTML(Configuration configuration, JSONComparator comparator) {
         this.comparator = comparator;
         this.configuration = configuration;
-//        htmlFilePath = "CompareResult_" + System.currentTimeMillis() + ".html";
-        htmlFilePath = "Compare_result/CompareResult.html"; // TODO: вернуть миллисекунды после отладки
     }
 
     public void saveContent() throws Exception {
+        htmlFilePath = "Compare_result/CompareResult_" + System.currentTimeMillis() + ".html";
         Path htmlFile = Path.of(getHtmlFilePath());
         Path directory = htmlFile.getParent();
         if (!Files.exists(directory)) {
@@ -396,7 +395,7 @@ public class HTML {
     }
 
     public void openInSystem() {
-        Utils.openFileInSystem(htmlFilePath);
+        Utils.openFileInSystem(getHtmlFilePath());
     }
 
     public String getHtmlFilePath() {

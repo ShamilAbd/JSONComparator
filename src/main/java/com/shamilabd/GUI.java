@@ -6,6 +6,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -14,8 +15,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class GUI extends JFrame {
-    public static final int APP_WIDTH = 680;
-    public static final int APP_HEIGHT = 670;
+    public static final int APP_WIDTH = 660;
+    public static final int APP_HEIGHT = 630;
     public static final String APP_NAME = "JSON Comparator";
 
     private final Configuration configuration;
@@ -49,6 +50,7 @@ public class GUI extends JFrame {
     private final JTextField compareKeysArrayPath = new JTextField(36);
     private final JTextField compareKeys = new JTextField(42);
 
+    private final JButton howCompare = new JButton("Показать как сравнивать файлы");
     private final JButton saveSettings = new JButton("Сохранить настройки");
     private final JButton compare = new JButton("Сравнить файлы");
     private final JButton exit = new JButton("Выход");
@@ -181,6 +183,9 @@ public class GUI extends JFrame {
                 file2Path.setText(file.getAbsoluteFile().getAbsolutePath());
                 configuration.setSecondFilePath(file.getAbsoluteFile().getAbsolutePath());
             }
+        });
+        howCompare.addActionListener((actionEvent) -> {
+            System.out.println("!!!");
         });
         saveSettings.addActionListener((actionEvent) -> {
             updateFromTextFields();
@@ -329,6 +334,9 @@ public class GUI extends JFrame {
         panel.add(jsonLogo, BorderLayout.WEST);
         panel.add(gitHubLogo, BorderLayout.EAST);
         panel.setBackground(headerBackground);
+        MouseAdapter mouseAdapter = new FrameMove(this);
+        panel.addMouseMotionListener(mouseAdapter);
+        panel.addMouseListener(mouseAdapter);
         buttonPane.setBackground(panel.getBackground());
         panel.setBorder(new EmptyBorder(3,0,3,3));
         return panel;
@@ -448,6 +456,7 @@ public class GUI extends JFrame {
     private JPanel getControlButtons() {
         JPanel commonPanel = new JPanel(new FlowLayout());
         JPanel panel = new JPanel(new FlowLayout());
+        panel.add(howCompare);
         panel.add(saveSettings);
         panel.add(compare);
         panel.add(exit);
