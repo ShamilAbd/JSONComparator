@@ -4,8 +4,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -13,8 +13,8 @@ import java.util.Set;
 
 public class JSONComparator {
     private final Configuration configuration;
-    private Path firstJSON;
-    private Path secondJSON;
+    private String firstJSON;
+    private String secondJSON;
     private final List<JSONObject> firstList = new ArrayList<>();
     private final List<JSONObject> secondList = new ArrayList<>();
     private final Set<JSONObject> matchedFirst = new HashSet<>();
@@ -29,7 +29,7 @@ public class JSONComparator {
     private int secondListSize;
 
     public static void main(String[] args) {
-        Configuration configuration = null;
+        Configuration configuration;
         try {
             configuration = new Configuration();
             JSONComparator comparator = new JSONComparator(configuration);
@@ -46,8 +46,8 @@ public class JSONComparator {
 
     public void compare() throws IOException {
         checkBeforeFillLists();
-        firstJSON = Path.of(configuration.getFirstFilePath());
-        secondJSON = Path.of(configuration.getSecondFilePath());
+        firstJSON = new File(configuration.getFirstFilePath()).getAbsolutePath();
+        secondJSON = new File(configuration.getSecondFilePath()).getAbsolutePath();
         fillFirstJSONList();
         fillSecondJSONList();
         checkBeforeCompare();
@@ -190,7 +190,9 @@ public class JSONComparator {
                     if (nullAsNotEqual && (first.isNull(key) || second.isNull(key))) {
                         continue SECOND_LIST;
                     }
-                    if (first.get(key) instanceof String firstVal && second.get(key) instanceof String secondVal) {
+                    if (first.get(key) instanceof String && second.get(key) instanceof String) {
+                        String firstVal = (String) first.get(key);
+                        String secondVal = (String) second.get(key);
                         if (trimText) {
                             firstVal = firstVal.trim();
                             secondVal = secondVal.trim();
@@ -258,7 +260,9 @@ public class JSONComparator {
 
         if (nullAsNotEqual) {
             if (!mainObj.isNull(key) && !compareObj.isNull(key)) {
-                if (mainObj.get(key) instanceof String firstVal && compareObj.get(key) instanceof String secondVal) {
+                if (mainObj.get(key) instanceof String && compareObj.get(key) instanceof String) {
+                    String firstVal = (String) mainObj.get(key);
+                    String secondVal = (String) compareObj.get(key);
                     if (trimText) {
                         firstVal = firstVal.trim();
                         secondVal = secondVal.trim();
@@ -278,7 +282,9 @@ public class JSONComparator {
                     }
                 }
             }
-        } else if (mainObj.get(key) instanceof String firstVal && compareObj.get(key) instanceof String secondVal) {
+        } else if (mainObj.get(key) instanceof String && compareObj.get(key) instanceof String) {
+            String firstVal = (String) mainObj.get(key);
+            String secondVal = (String) compareObj.get(key);
             if (trimText) {
                 firstVal = firstVal.trim();
                 secondVal = secondVal.trim();
@@ -323,11 +329,11 @@ public class JSONComparator {
         }
     }
 
-    public Path getFirstJSON() {
+    public String getFirstJSON() {
         return firstJSON;
     }
 
-    public Path getSecondJSON() {
+    public String getSecondJSON() {
         return secondJSON;
     }
 

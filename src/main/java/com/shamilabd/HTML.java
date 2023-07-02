@@ -1,8 +1,8 @@
 package com.shamilabd;
 
 import org.json.JSONObject;
-import java.nio.file.Files;
-import java.nio.file.Path;
+
+import java.io.File;
 import java.util.*;
 
 public class HTML {
@@ -18,105 +18,94 @@ public class HTML {
 
     public void saveContent() throws Exception {
         htmlFilePath = "Compare_result/CompareResult_" + System.currentTimeMillis() + ".html";
-        Path htmlFile = Path.of(getHtmlFilePath());
-        Path directory = htmlFile.getParent();
-        if (!Files.exists(directory)) {
-            Files.createDirectory(directory);
+        File htmlFile = new File(getHtmlFilePath());
+        File directory = new File(htmlFile.getParent());
+        if (!directory.exists()) {
+            boolean isMakedDir = directory.mkdir();
+            if (!isMakedDir) {
+                throw new RuntimeException("Не удалось создать папку для хранения результатов сравнения");
+            }
         }
-        Utils.saveInFile(htmlFile.toAbsolutePath().toString(), getHTMLContent());
-        Utils.saveResources(directory.toAbsolutePath().toString());
+        Utils.saveInFile(htmlFile.getAbsolutePath(), getHTMLContent());
+        Utils.saveResources(directory.getAbsolutePath());
     }
 
     public String getHTMLContent() {
-        return """
-                <!Doctype html>
-                <html lang="ru">
-                    <head>
-                        <title>JSONComparator</title>
-                        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                        <meta name="Author" content="Shamil Abdullin">
-                        <link rel="stylesheet" type="text/css" href="style.css">
-                    </head>
-                    <body>
-                """ + getContentHeader() + """
-                        <div class="main-content">
-                            """ + printStatisticsAndConfigs() + """      
-                            """ + printLinksHeader() + """    
-                            
-                            <table class="main-table">
-                              <tr class="header1">
-                                <td>Полностью совпавшие элементы</td>
-                                <td>Частично совпавшие элементы</td>
-                                <td>Не совпавшие или те, для которых не осталось объектов для сравнения</td>
-                              </tr>
-                              <tr class="data">
-                                <td scope="row">""" + printMatchedFirst() + """
-                                </td>
-                                <td scope="row">""" + printHalfMatchedFirst() + """
-                                </td>
-                                <td scope="row">""" + printNotMatchedFirst() + """
-                                </td>
-                              </tr>
-                            </table>"""
-                            + printLinksNearSecondObjects() + """
-                            <table class="main-table">
-                              <tr class="header1">
-                                <td>Полностью совпавшие элементы</td>
-                                <td>Частично совпавшие элементы</td>
-                                <td>Не совпавшие или те, для которых не осталось объектов для сравнения</td>
-                              </tr>
-                              <tr class="data">
-                                <td scope="row">""" + printMatchedSecond() + """
-                                </td>
-                                <td scope="row">""" + printHalfMatchedSecond() + """
-                                </td>
-                                <td scope="row">""" + printNotMatchedSecond() + """
-                                </td>
-                              </tr>
-                            </table><br>
-                            """
-                            + getDuplicatesHTMLContent()
-                            + printLinksFooter() + """
-                        </div>
-                        <div id="footer-background">
-                          <div id="footer">
-                            <div>
-                              <span>Дата и время сравнения:</span><br>
-                              <span>""" + Utils.getCurrentDateTime() + """
-                              </span>
-                            </div>
-                            <div>
-                              <span>Версия JSONComparator:\040""" + configuration.getCurrentJsonComparatorVersion() + """
-                              </span>
-                            </div>
-                            <div>
-                              <span>Сайт проекта:</span><br>
-                              <span><a href="https://github.com/ShamilAbd/JSONComparator" target="_blank">GitHub.com/ShamilAbd/JSONComparator</a></span>
-                            </div>
-                          </div>
-                        </div>
-                    </body>
-                </html>
-                """;
+        return    "<!Doctype html>"
+                + "<html lang=\"ru\">"
+                + "     <head>"
+                + "         <title>JSONComparator</title>"
+                + "         <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"
+                + "          <meta name=\"Author\" content=\"Shamil Abdullin\">"
+                + "           <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">"
+                + "       </head>"
+                + "       <body>" + getContentHeader()
+                + "            <div class=\"main-content\"> " + printStatisticsAndConfigs() + printLinksHeader()
+                + "               <table class=\"main-table\">"
+                + "                 <tr class=\"header1\">"
+                + "                 <td>Полностью совпавшие элементы</td>"
+                + "                 <td>Частично совпавшие элементы</td>"
+                + "                 <td>Не совпавшие или те, для которых не осталось объектов для сравнения</td>"
+                + "               </tr>"
+                + "               <tr class=\"data\">"
+                + "                 <td scope=\"row\">" + printMatchedFirst()
+                + "                 </td>"
+                + "                 <td scope=\"row\">" + printHalfMatchedFirst()
+                + "                 </td>"
+                + "                  <td scope=\"row\">" + printNotMatchedFirst()
+                + "                 </td>"
+                + "              </tr>"
+                + "             </table>" + printLinksNearSecondObjects()
+                + "            <table class=\"main-table\">"
+                + "              <tr class=\"header1\">"
+                + "                <td>Полностью совпавшие элементы</td>"
+                + "                 <td>Частично совпавшие элементы</td>"
+                + "                 <td>Не совпавшие или те, для которых не осталось объектов для сравнения</td>"
+                + "              </tr>"
+                + "              <tr class=\"data\">"
+                + "                <td scope=\"row\">" + printMatchedSecond()
+                + "                 </td>"
+                + "                <td scope=\"row\">" + printHalfMatchedSecond()
+                + "                </td>"
+                + "                <td scope=\"row\">" + printNotMatchedSecond()
+                + "                </td>"
+                + "               </tr>"
+                + "            </table><br>" + getDuplicatesHTMLContent() + printLinksFooter()
+                + "        </div>"
+                + "        <div id=\"footer-background\">"
+                + "          <div id=\"footer\">"
+                + "            <div>"
+                + "              <span>Дата и время сравнения:</span><br>"
+                + "              <span>" + Utils.getCurrentDateTime()
+                + "              </span>"
+                + "             </div>"
+                + "            <div>"
+                + "              <span>Версия JSONComparator: " + configuration.getCurrentJsonComparatorVersion()
+                + "              </span>"
+                + "            </div>"
+                + "            <div>"
+                + "              <span>Сайт проекта:</span><br>"
+                + "              <span><a href=\"https://github.com/ShamilAbd/JSONComparator\" target=\"_blank\">GitHub.com/ShamilAbd/JSONComparator</a></span>"
+                + "            </div>"
+                + "          </div>"
+                + "        </div>"
+                + "    </body>"
+                + "</html>";
     }
 
     private String printLinksFooter() {
-        return """
-            <div>
-                <p>Перейти на начало:<br>
-                    <a href="#fileStart">отчета</a><br>
-                    <a href="#firstFileStart">объектов <b>первого</b> файла</a><br>
-                    <a href="#secondFileStart">объектов <b>второго</b> файла</a>"""
-                    + (configuration.getFindDuplicatesInFiles() ? "<br><a href=\"#duplicatesDescription\">объектов <b>дубликатов</b> в файлах</a>" : "")
-                    + """
-                </p>
-            </div>""".indent(8);
+        return    "<div><p>Перейти на начало:<br>"
+                + "  <a href=\"#fileStart\">отчета</a><br>"
+                + "  <a href=\"#firstFileStart\">объектов <b>первого</b> файла</a><br>"
+                + "  <a href=\"#secondFileStart\">объектов <b>второго</b> файла</a>"
+                + (configuration.getFindDuplicatesInFiles() ? "<br><a href=\"#duplicatesDescription\">объектов <b>дубликатов</b> в файлах</a>" : "")
+                + "</p></div>";
     }
 
     private String printLinksHeader() {
         return "<p id=\"firstFileStart\">Перейти на начало объектов <a href=\"#secondFileStart\"><b>второго</b> файла</a>."
             + printLinkToDuplicates()
-            + "</p><p>Объекты <b>первого</b> файла:</p>".indent(6);
+            + "</p><p>Объекты <b>первого</b> файла:</p>";
     }
 
     private String printLinkToDuplicates() {
@@ -129,49 +118,49 @@ public class HTML {
     private String printLinksNearSecondObjects() {
         return "<p id=\"secondFileStart\">Перейти на начало объектов <a href=\"#firstFileStart\"><b>первого</b> файла</a>."
                 + printLinkToDuplicates()
-                + "</p><p>Объекты <b>второго</b> файла:</p>".indent(6);
+                + "</p><p>Объекты <b>второго</b> файла:</p>";
     }
 
     private String getContentHeader() {
-        return """
-                <div class="header-style" id="fileStart">
-                    <div class="header-left">
-                        <a href="https://github.com/ShamilAbd/JSONComparator" target="_blank"><img src="json-logo.png" alt="JSONComparator"></a>
-                    </div>
-                    <div class="header-center">
-                        <h2>Сравнение JSON файлов</h2>
-                    </div>
-                    <div class="header-right">
-                        <a href="https://github.com/ShamilAbd/JSONComparator" target="_blank"><img src="github-logo.png" alt="GitHub.com/ShamilAbd/JSONComparator"></a>
-                    </div>
-                </div>""".indent(4);
+        return "<div class=\"header-style\" id=\"fileStart\">"
+            + "   <div class=\"header-left\">"
+            + "      <a href=\"https://github.com/ShamilAbd/JSONComparator\" target=\"_blank\"><img src=\"json-logo.png\" alt=\"JSONComparator\"></a>"
+            + "    </div>"
+            + "    <div class=\"header-center\">"
+            + "      <h2>Сравнение JSON файлов</h2>"
+            + "    </div>"
+            + "    <div class=\"header-right\">"
+            + "      <a href=\"https://github.com/ShamilAbd/JSONComparator\" target=\"_blank\">"
+            + "        <img src=\"github-logo.png\" alt=\"GitHub.com/ShamilAbd/JSONComparator\">"
+            + "      </a>"
+            + "    </div>"
+            + "  </div>";
     }
 
     private String getDuplicatesHTMLContent() {
         if (!configuration.getFindDuplicatesInFiles()) {
             return "";
         }
-        return """
-                <div id="duplicatesDescription">
-                    <p>Перейти на начало объектов <a href="#firstFileStart"><b>первого</b> файла</a>.<br>
-                    Перейти на начало объектов <a href="#secondFileStart"><b>второго</b> файла</a>.</p>
-                    <p>Найденные дубликаты объектов в файлах:</p>
-                </div>
-                <table class="duplicates centering">
-                  <tr class="header1">
-                    <td colspan="2">Дубликаты в файлах</td>
-                  </tr>
-                  <tr class="header2">
-                    <td>Первый файл</td>
-                    <td>Второй файл</td>
-                  </tr>
-                  <tr class="data">
-                    <td>""" + printFirstDuplicates() + """
-                    </td>
-                    <td>""" + printSecondDuplicates() + """
-                    </td>
-                  </tr>
-                </table>""".indent(8);
+        return    "<div id=\"duplicatesDescription\">"
+                + "     <p>Перейти на начало объектов <a href=\"#firstFileStart\"><b>первого</b> файла</a>.<br>"
+                + "       Перейти на начало объектов <a href=\"#secondFileStart\"><b>второго</b> файла</a>.</p>"
+                + "       <p>Найденные дубликаты объектов в файлах:</p>"
+                + "   </div>"
+                + "    <table class=\"duplicates centering\">"
+                + "     <tr class=\"header1\">"
+                + "       <td colspan=\"2\">Дубликаты в файлах</td>"
+                + "     </tr>"
+                + "     <tr class=\"header2\">"
+                + "       <td>Первый файл</td>"
+                + "       <td>Второй файл</td>"
+                + "     </tr>"
+                + "     <tr class=\"data\">"
+                + "       <td>" + printFirstDuplicates()
+                + "       </td>"
+                + "       <td>" + printSecondDuplicates()
+                + "       </td>"
+                + "     </tr>"
+                + "  </table>";
     }
 
     private String printFirstDuplicates() {
@@ -192,48 +181,47 @@ public class HTML {
 
     private String printStatisticsAndConfigs() {
         String newLineTag = "<br>\n";
-        return """
-                <table class="configAndStatistics centering">
-                  <tr class="header1">
-                    <td colspan="2">Сравниваемые файлы</td>
-                  </tr>
-                  <tr>
-                    <td colspan="2" class="file-list">""" + getCompareFilesLinks() + """
-                    </td>
-                  </tr>
-                  <tr class="header2">
-                    <td>Статистика по итогу сравнения</td>
-                    <td>Параметры сравнения файлов</td>
-                  </tr>
-                  <tr class="data">
-                    <td>
-                        Объектов в 1 файле:\040""" + comparator.getFirstListSize() + newLineTag + """
-                        Объектов в 2 файле:\040""" + comparator.getSecondListSize() + newLineTag + """
-                        Совпало полностью:\040""" + comparator.getMatchedFirst().size() + newLineTag + """
-                        Совпало частично (первый файл):\040""" + comparator.getHalfMatchedFirst().size() + newLineTag + """
-                        Совпало частично (второй файл):\040""" + comparator.getHalfMatchedSecond().size() + newLineTag + """
-                        Не совпало/не с чем сравнивать (первый файл):\040""" + comparator.getNotMatchedFirst().size() + newLineTag + """
-                        Не совпало/не с чем сравнивать (второй файл):\040""" + comparator.getNotMatchedSecond().size() + newLineTag + """
-                        """ + printDuplicatesStatistics() + """
-                    </td>
-                    <td>
-                        Путь ключей до сравниваемого массива:\040\"""" + configuration.getCompareKeysArrayPath() + "\"" + newLineTag + """
-                        Список сравниваемых ключей:\040""" + printCompareKeys() + newLineTag + """
-                        Сравнение с null всегда равно ложь:\040""" + (configuration.getNullAsNotEqual() ? "да" : "нет") + newLineTag + """
-                        Выводить полностью совпавшие элементы:\040""" + (configuration.getShowFullyMatched() ? "да" : "нет") + newLineTag + """
-                        Выводить частично совпавшие элементы:\040""" + (configuration.getShowPartialMatched() ? "да" : "нет") + newLineTag + """
-                        Выводить не совпавшие элементы:\040""" + (configuration.getShowNotMatched() ? "да" : "нет") + newLineTag + """
-                        Сравнивать без учета регистра:\040""" + (configuration.getIgnoreCase() ? "да" : "нет") + newLineTag + """
-                        При сравнении обрезать пробелы по краям:\040""" + (configuration.getTrimText() ? "да" : "нет") + newLineTag + """
-                        Найти и вывести дубли в файлах:\040""" + (configuration.getFindDuplicatesInFiles() ? "да" : "нет") + newLineTag + """
-                        Выводить объекты только по сравниваемым ключам:\040""" + (configuration.getShowOnlyCompareKeys() ? "да" : "нет") + newLineTag + """
-                        Добавить порядковые номера к объектам сравнения:\040""" + (configuration.getAddRowNumber() ? "да" : "нет") + newLineTag + """
-                        Добавить запятые между объектами сравнения:\040""" + (configuration.getAddCommaBetweenObjects() ? "да" : "нет") + newLineTag + """
-                        Количество пробелов в отступе объектов:\040""" + configuration.getLeftIndentsInObject() + newLineTag + """
-                        Открыть HTML с результатами после сравнения:\040""" + (configuration.getOpenResultAfterCompare() ? "да" : "нет") + newLineTag + """
-                    </td>
-                  </tr>
-                </table>""";
+        return "<table class=\"configAndStatistics centering\">"
+                 + "    <tr class=\"header1\">"
+                 + "      <td colspan=\"2\">Сравниваемые файлы</td>"
+                 + "     </tr>"
+                 + "     <tr>"
+                 + "        <td colspan=\"2\" class=\"file-list\">" + getCompareFilesLinks()
+                 + "        </td>"
+                 + "      </tr>"
+                 + "      <tr class=\"header2\">"
+                 + "         <td>Статистика по итогу сравнения</td>"
+                 + "         <td>Параметры сравнения файлов</td>"
+                 + "        </tr>"
+                 + "        <tr class=\"data\">"
+                 + "         <td>"
+                 + "             Объектов в 1 файле: " + comparator.getFirstListSize() + newLineTag
+                 + "             Объектов в 2 файле: " + comparator.getSecondListSize() + newLineTag
+                 + "             Совпало полностью: " + comparator.getMatchedFirst().size() + newLineTag
+                 + "            Совпало частично (первый файл): " + comparator.getHalfMatchedFirst().size() + newLineTag
+                 + "          Совпало частично (второй файл): " + comparator.getHalfMatchedSecond().size() + newLineTag
+                 + "           Не совпало/не с чем сравнивать (первый файл): " + comparator.getNotMatchedFirst().size() + newLineTag
+                 + "           Не совпало/не с чем сравнивать (второй файл): " + comparator.getNotMatchedSecond().size() + newLineTag
+                 + printDuplicatesStatistics()
+                 + "        </td>"
+                 + "       <td>"
+                 + "             Путь ключей до сравниваемого массива: " + configuration.getCompareKeysArrayPath() + newLineTag
+                 + "             Список сравниваемых ключей: " + printCompareKeys() + newLineTag
+                 + "            Сравнение с null всегда равно ложь: " + (configuration.getNullAsNotEqual() ? "да" : "нет") + newLineTag
+                 + "            Выводить полностью совпавшие элементы: " + (configuration.getShowFullyMatched() ? "да" : "нет") + newLineTag
+                 + "           Выводить частично совпавшие элементы: " + (configuration.getShowPartialMatched() ? "да" : "нет") + newLineTag
+                 + "            Выводить не совпавшие элементы: " + (configuration.getShowNotMatched() ? "да" : "нет") + newLineTag
+                 + "           Сравнивать без учета регистра: " + (configuration.getIgnoreCase() ? "да" : "нет") + newLineTag
+                 + "            При сравнении обрезать пробелы по краям: " + (configuration.getTrimText() ? "да" : "нет") + newLineTag
+                 + "           Найти и вывести дубли в файлах: " + (configuration.getFindDuplicatesInFiles() ? "да" : "нет") + newLineTag
+                 + "         Выводить объекты только по сравниваемым ключам: " + (configuration.getShowOnlyCompareKeys() ? "да" : "нет") + newLineTag
+                 + "           Добавить порядковые номера к объектам сравнения: " + (configuration.getAddRowNumber() ? "да" : "нет") + newLineTag
+                 + "          Добавить запятые между объектами сравнения: " + (configuration.getAddCommaBetweenObjects() ? "да" : "нет") + newLineTag
+                 + "           Количество пробелов в отступе объектов: " + configuration.getLeftIndentsInObject() + newLineTag
+                 + "          Открыть HTML с результатами после сравнения: " + (configuration.getOpenResultAfterCompare() ? "да" : "нет") + newLineTag
+                 + "     </td>"
+                 + "   </tr>"
+                 + "</table>";
     }
 
     private String printDuplicatesStatistics() {
@@ -245,10 +233,10 @@ public class HTML {
     }
 
     private String getCompareFilesLinks() {
-        return "<a href=\"" + comparator.getFirstJSON().toAbsolutePath() + "\" target=\"_blank\">"
-                + comparator.getFirstJSON().toAbsolutePath() + "</a><br>\n"
-                + "<a href=\"" + comparator.getSecondJSON().toAbsolutePath() + "\" target=\"_blank\">"
-                + comparator.getSecondJSON().toAbsolutePath() + "</a>";
+        return "<a href=\"" + comparator.getFirstJSON() + "\" target=\"_blank\">"
+                + comparator.getFirstJSON() + "</a><br>\n"
+                + "<a href=\"" + comparator.getSecondJSON() + "\" target=\"_blank\">"
+                + comparator.getSecondJSON() + "</a>";
     }
 
     private String printMatchedFirst() {

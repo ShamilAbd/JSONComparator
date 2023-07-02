@@ -41,27 +41,26 @@ public class Configuration {
     }
 
     private void createConfigExample(String path) throws IOException {
-        String text = """
-                {
-                  "showFullyMatched": true,
-                  "addCommaBetweenObjects": true,
-                  "configFileVersion": "1.0",
-                  "showOnlyCompareKeys": false,
-                  "addRowNumber": false,
-                  "openResultAfterCompare": true,
-                  "trimText": false,
-                  "secondFilePath": "C:\\\\SomeDirectoryPath\\\\jsonForCompare\\\\test_2.json",
-                  "leftIndentsInObject": 2,
-                  "showNotMatched": true,
-                  "fontName": "Yu Gothic UI Semibold",
-                  "compareKeysArrayPath": "SomeKey.KeyWithArray",
-                  "ignoreCase": false,
-                  "nullAsNotEqual": false,
-                  "firstFilePath": "C:\\\\SomeDirectoryPath\\\\jsonForCompare\\\\test_1.json",
-                  "showPartialMatched": true,
-                  "findDuplicatesInFiles": true,
-                  "compareKeys": ["name", "key"]
-                }""";
+        String text = "{"
+                + "\"showFullyMatched\": true,"
+                + "\"addCommaBetweenObjects\": true,"
+                + "\"configFileVersion\": \"1.0\","
+                + "\"showOnlyCompareKeys\": false,"
+                + "\"addRowNumber\": false,"
+                + "\"openResultAfterCompare\": true,"
+                + "\"trimText\": false,"
+                + "\"secondFilePath\": \"C:\\\\SomeDirectoryPath\\\\jsonForCompare\\\\test_2.json\","
+                + "\"leftIndentsInObject\": 2,"
+                + "\"showNotMatched\": true,"
+                + "\"fontName\": \"Yu Gothic UI Semibold\","
+                + "\"compareKeysArrayPath\": \"SomeKey.KeyWithArray\","
+                + "\"ignoreCase\": false,"
+                + "\"nullAsNotEqual\": false,"
+                + "\"firstFilePath\": \"C:\\\\SomeDirectoryPath\\\\jsonForCompare\\\\test_1.json\","
+                + "\"showPartialMatched\": true,"
+                + "\"findDuplicatesInFiles\": true,"
+                + "\"compareKeys\": [\"name\", \"key\"]"
+                + "}";
         Utils.saveInFile(path, text);
     }
 
@@ -128,7 +127,7 @@ public class Configuration {
     }
 
     public List<String> getCompareKeys() {
-        return List.copyOf(compareKeys);
+        return new ArrayList<>(compareKeys);
     }
 
     public Boolean getNullAsNotEqual() {
@@ -289,7 +288,7 @@ public class Configuration {
     }
 
     public void setCompareKeys(List<String> compareKeys) {
-        this.compareKeys = List.copyOf(compareKeys);
+        this.compareKeys = new ArrayList<>(compareKeys);
     }
 
     public String getFontName() {

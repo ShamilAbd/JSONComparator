@@ -263,7 +263,7 @@ public class GUI extends JFrame {
         String newKeysTextForCompare = compareKeys.getText().trim();
         java.util.List<String> keys = new ArrayList<>();
         if (newKeysTextForCompare.length() > 0) {
-            Pattern pattern = Pattern.compile("\"([a-zA-Z0-9\s.,]+)\"");
+            Pattern pattern = Pattern.compile("\"([a-zA-Z0-9 .,]+)\"");
             Matcher matcher = pattern.matcher(newKeysTextForCompare);
             while (matcher.find()) {
                 keys.add(matcher.group(1));
