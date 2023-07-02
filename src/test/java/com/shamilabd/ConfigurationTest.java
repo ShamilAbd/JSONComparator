@@ -1,81 +1,28 @@
 package com.shamilabd;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
 public class ConfigurationTest {
 
-    private final Configuration configuration = new Configuration();
+    private Configuration configuration;
 
-    public ConfigurationTest() throws IOException {
+    @BeforeEach
+    void setUp() {
+        try {
+            configuration = new Configuration();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
     void getFirstFilePath() {
-        Assertions.assertEquals("D:/Java/Projects/JSONComparator/jsonForCompare/test.json",
+        configuration.setFirstFilePath("C:\\\\SomeDirectoryPath\\\\jsonForCompare\\\\test_1.json");
+        Assertions.assertEquals("C:\\\\SomeDirectoryPath\\\\jsonForCompare\\\\test_1.json",
                 configuration.getFirstFilePath());
     }
-
-//    @Test
-//    void getSecondFilePath() {
-//    }
-
-//    @Test
-//    void getCompareKeysArrayPath() {
-//        Assertions.assertArrayEquals(List.of("sNm", "sKey"), configuration.getCompareKeys());
-//    }
-
-//    @Test
-//    void getJsonComparatorVersion() {
-//    }
-//
-//    @Test
-//    void getCompareKeys() {
-//    }
-//
-//    @Test
-//    void getNullAsNotEqual() {
-//    }
-//
-//    @Test
-//    void getShowFullyMatched() {
-//    }
-//
-//    @Test
-//    void getShowPartialMatched() {
-//    }
-//
-//    @Test
-//    void getShowNotMatched() {
-//    }
-//
-//    @Test
-//    void getShowOnlyCompareKeys() {
-//    }
-//
-//    @Test
-//    void getOpenResultAfterCompare() {
-//    }
-//
-//    @Test
-//    void getAddRowNumber() {
-//    }
-//
-//    @Test
-//    void getLeftIndentsInObject() {
-//    }
-//
-//    @Test
-//    void getAddCommaBetweenObjects() {
-//    }
-//
-//    @Test
-//    void getFindDuplicatesInFiles() {
-//    }
-//
-//    @Test
-//    void getCurrentJsonComparatorVersion() {
-//    }
 }

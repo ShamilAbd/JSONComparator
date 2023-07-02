@@ -56,7 +56,7 @@ public class Configuration {
                   "fontName": "Yu Gothic UI Semibold",
                   "compareKeysArrayPath": "SomeKey.KeyWithArray",
                   "ignoreCase": false,
-                  "nullAsNotEqual": true,
+                  "nullAsNotEqual": false,
                   "firstFilePath": "C:\\\\SomeDirectoryPath\\\\jsonForCompare\\\\test_1.json",
                   "showPartialMatched": true,
                   "findDuplicatesInFiles": true,
