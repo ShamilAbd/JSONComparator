@@ -17,16 +17,28 @@ public class JSONComparator {
     private Path secondJSON;
     private final List<JSONObject> firstList = new ArrayList<>();
     private final List<JSONObject> secondList = new ArrayList<>();
-    private final List<JSONObject> matchedFirst = new ArrayList<>();
-    private final List<JSONObject> matchedSecond = new ArrayList<>();
+    private final Set<JSONObject> matchedFirst = new HashSet<>();
+    private final Set<JSONObject> matchedSecond = new HashSet<>();
     private final Set<JSONObject> halfMatchedFirst = new HashSet<>();
     private final Set<JSONObject> halfMatchedSecond = new HashSet<>();
     private final List<JSONObject> notMatchedFirst = new ArrayList<>();
     private final List<JSONObject> notMatchedSecond = new ArrayList<>();
-    private final List<JSONObject> firstFileDuplicates = new ArrayList<>();
-    private final List<JSONObject> secondFileDuplicates = new ArrayList<>();
+    private final Set<JSONObject> firstFileDuplicates = new HashSet<>();
+    private final Set<JSONObject> secondFileDuplicates = new HashSet<>();
     private int firstListSize;
     private int secondListSize;
+
+    public static void main(String[] args) {
+        Configuration configuration = null;
+        try {
+            configuration = new Configuration();
+            JSONComparator comparator = new JSONComparator(configuration);
+            comparator.compare();
+            comparator.clear();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public JSONComparator(Configuration configuration) {
         this.configuration = configuration;
@@ -152,12 +164,14 @@ public class JSONComparator {
         return values;
     }
 
-    private void findDuplicates(List<JSONObject> objects, List<JSONObject> duplicates) {
+    private void findDuplicates(List<JSONObject> objects, Set<JSONObject> duplicates) {
         for (int i = 0; i < objects.size(); i++) {
             JSONObject object = objects.get(i);
             for (int j = i + 1; j < objects.size(); j++) {
-                if (object.toString().equals(objects.get(j).toString())) {
+                JSONObject object2 = objects.get(j);
+                if (object.toString().equals(object2.toString())) {
                     duplicates.add(object);
+                    duplicates.add(object2);
                 }
             }
         }
@@ -317,11 +331,11 @@ public class JSONComparator {
         return secondJSON;
     }
 
-    public List<JSONObject> getMatchedFirst() {
+    public Set<JSONObject> getMatchedFirst() {
         return matchedFirst;
     }
 
-    public List<JSONObject> getMatchedSecond() {
+    public Set<JSONObject> getMatchedSecond() {
         return matchedSecond;
     }
 
@@ -349,11 +363,11 @@ public class JSONComparator {
         return secondListSize;
     }
 
-    public List<JSONObject> getFirstFileDuplicates() {
+    public Set<JSONObject> getFirstFileDuplicates() {
         return firstFileDuplicates;
     }
 
-    public List<JSONObject> getSecondFileDuplicates() {
+    public Set<JSONObject> getSecondFileDuplicates() {
         return secondFileDuplicates;
     }
 }

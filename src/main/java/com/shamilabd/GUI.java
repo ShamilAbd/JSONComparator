@@ -223,6 +223,7 @@ public class GUI extends JFrame {
                 comparator.clear();
             } catch (Exception e) {
                 e.printStackTrace();
+                comparator.clear();
                 errorMessage = e.getMessage();
             }
             if (errorMessage != null) {

@@ -3,10 +3,7 @@ package com.shamilabd;
 import org.json.JSONObject;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class HTML {
     private final Configuration configuration;
@@ -302,6 +299,10 @@ public class HTML {
             builder.append(getFormattedList(comparator.getNotMatchedSecond()));
         }
         return builder.toString();
+    }
+
+    private StringBuilder getFormattedList(Set<JSONObject> set) {
+        return getFormattedList(new ArrayList<>(set));
     }
 
     private StringBuilder getFormattedList(List<JSONObject> list) {

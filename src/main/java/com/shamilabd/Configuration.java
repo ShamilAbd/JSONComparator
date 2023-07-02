@@ -60,7 +60,7 @@ public class Configuration {
                   "firstFilePath": "C:\\\\SomeDirectoryPath\\\\jsonForCompare\\\\test_1.json",
                   "showPartialMatched": true,
                   "findDuplicatesInFiles": true,
-                  "compareKeys": ["name", "key", "version"]
+                  "compareKeys": ["name", "key"]
                 }""";
         Utils.saveInFile(path, text);
     }
