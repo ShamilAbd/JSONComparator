@@ -3,6 +3,7 @@ package com.shamilabd;
 import org.json.JSONObject;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 public class HTML {
@@ -383,7 +384,7 @@ public class HTML {
         return jsonObject.toString(indentFactor);
     }
 
-    public void openInSystem() {
+    public void openInSystem() throws IOException {
         Utils.openFileInSystem(getHtmlFilePath());
     }
 

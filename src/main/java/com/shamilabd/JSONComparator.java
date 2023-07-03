@@ -306,7 +306,7 @@ public class JSONComparator {
         return halfEquals;
     }
 
-    private void findHalfMatchInOtherList(List<JSONObject> notMatchedMain, Set<JSONObject>halfMatchedSecond, Set<JSONObject> halfMatchedMain) {
+    private void findHalfMatchInOtherList(List<JSONObject> notMatchedMain, Set<JSONObject> halfMatchedSecond, Set<JSONObject> halfMatchedMain) {
         boolean halfEquals;
 
         List<JSONObject> notMatchedFirstCopy = new ArrayList<>(notMatchedMain);

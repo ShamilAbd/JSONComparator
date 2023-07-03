@@ -1,5 +1,6 @@
-package com.shamilabd;
+package com.shamilabd.gui;
 
+import com.shamilabd.*;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
@@ -22,9 +23,11 @@ public class GUI extends JFrame {
     public static final String APP_NAME = "JSON Comparator";
     private final JFrame howCompareInfo = new JFrame();
 
-    private final Configuration configuration;
-    private final JSONComparator comparator;
-    private final HTML html;
+    private Configuration configuration = null;
+    private JSONComparator comparator = null;
+    private HTML html = null;
+
+    private final GitHubPageURL gitHubPageURL = new GitHubPageURL();
 
     private final Color backgroundColor = new Color(43, 43, 43);
     private final Color footerBackgroundColor = Color.BLACK;
@@ -32,6 +35,7 @@ public class GUI extends JFrame {
     private final Color textFieldBackgroundColor = new Color(180, 180, 180);
     private final Color linkColor = new Color(170, 113, 221);
     private final Color headerBackground = new Color(60, 63, 65);
+    private final Color headerColor = new Color(255, 141, 0);
 
     private final JTextField file1Path = new JTextField(38);
     private final JTextField file2Path = new JTextField(38);
@@ -58,33 +62,36 @@ public class GUI extends JFrame {
     private final JButton compare = new JButton("Сравнить файлы");
     private final JButton exit = new JButton("Выход");
 
-    public GUI() throws HeadlessException, IOException {
+    public GUI() throws HeadlessException {
         super(APP_NAME);
-        configuration = new Configuration();
-        comparator = new JSONComparator(configuration);
-        html = new HTML(configuration, comparator);
+        String errorMessage = null;
+        try {
+            configuration = new Configuration();
+            comparator = new JSONComparator(configuration);
+            html = new HTML(configuration, comparator);
+        } catch (Exception e) {
+            e.printStackTrace();
+            errorMessage = e.getMessage();
+        }
 
-        initialization();
+        initialization(errorMessage);
         add(getAppHeader(), BorderLayout.NORTH);
         add(getAppCenter(), BorderLayout.CENTER);
         add(getAppFooter(), BorderLayout.SOUTH);
         revalidate();
     }
 
-    private JPanel getAppCenter() {
-        JPanel panel = new JPanel(new FlowLayout());
-        panel.setBackground(backgroundColor);
-        panel.setBorder(new EmptyBorder(10,0,0,0));
-
-        addFilesFields(panel);
-        addCompareSettingsFields(panel);
-        addReportSettingsFields(panel);
-
-        return panel;
+    public static void main(String[] args) {
+        try {
+            new GUI();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    private void initialization() {
+    private void initialization(String errorMessage) {
         initApp();
+        checkInitError(errorMessage);
         initVariables();
         initHowCompareInfoFrame();
     }
@@ -102,6 +109,16 @@ public class GUI extends JFrame {
         setLayout(new BorderLayout());
         setBackground(backgroundColor);
         setVisible(true);
+    }
+
+    private void checkInitError(String errorMessage) {
+        if (errorMessage != null) {
+            JOptionPane.showMessageDialog(this,
+                    errorMessage,
+                    "Ошибка при запуске",
+                    JOptionPane.ERROR_MESSAGE);
+            System.exit(0);
+        }
     }
 
     private void initVariables() {
@@ -127,7 +144,7 @@ public class GUI extends JFrame {
         findDuplicatesInFiles.setSelected(configuration.getFindDuplicatesInFiles());
         leftIndentsInObject.setText(String.valueOf(configuration.getLeftIndentsInObject()));
         compareKeysArrayPath.setText(configuration.getCompareKeysArrayPath());
-        compareKeys.setText(getListOfCompareKeys());
+        compareKeys.setText(configuration.getCompareKeysForPrint());
     }
 
     private void setListenerForCheckBox() {
@@ -153,21 +170,6 @@ public class GUI extends JFrame {
                 configuration.setAddCommaBetweenObjects(((JCheckBox) a.getSource()).isSelected()));
         findDuplicatesInFiles.addActionListener((a) ->
                 configuration.setFindDuplicatesInFiles(((JCheckBox) a.getSource()).isSelected()));
-    }
-
-    private String getListOfCompareKeys() {
-        StringBuilder builder = new StringBuilder();
-        java.util.List<String> keys = configuration.getCompareKeys();
-        int listSize = keys.size();
-        for (int i = 0; i < listSize; i++) {
-            builder.append("\"");
-            builder.append(keys.get(i));
-            builder.append("\"");
-            if (i < listSize - 1) {
-                builder.append(", ");
-            }
-        }
-        return builder.toString();
     }
 
     private void setListenerForButtons() {
@@ -236,16 +238,35 @@ public class GUI extends JFrame {
         exit.addActionListener((actionEvent) -> System.exit(0));
     }
 
+    private JFileChooser getFileFilterJSON() {
+        JFileChooser fc = new JFileChooser();
+        fc.setAcceptAllFileFilterUsed(false);
+        fc.setFileFilter(new FileFilter() {
+            @Override
+            public boolean accept(File f) {
+                return f.getName().toUpperCase().endsWith(".JSON") || f.isDirectory();
+            }
+
+            @Override
+            public String getDescription() {
+                return "JSON";
+            }
+        });
+        fc.setCurrentDirectory(new File("."));
+        return fc;
+    }
+
     private void updateFromTextFields() {
         String value = leftIndentsInObject.getText().trim();
         if (value.equals("")) {
             configuration.setLeftIndentsInObject(2);
             leftIndentsInObject.setText("2");
         } else {
-            int newValue = 0;
+            int newValue;
             try {
                 newValue = Integer.parseInt(value);
             } catch (NumberFormatException ignored) {
+                newValue = 2;
             }
             if (newValue < 0) {
                 configuration.setLeftIndentsInObject(2);
@@ -270,6 +291,54 @@ public class GUI extends JFrame {
             }
         }
         configuration.setCompareKeys(keys);
+    }
+
+    private void initHowCompareInfoFrame() {
+        howCompareInfo.setUndecorated(true);
+        int width = 750;
+        int height = 700;
+        howCompareInfo.setSize(width, height);
+        Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Dimension dimension = toolkit.getScreenSize();
+        howCompareInfo.setLocation(dimension.width / 2 - width / 2, dimension.height / 2 - height / 2);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(addHowCompareDescription(), BorderLayout.CENTER);
+        panel.add(addExitButton(howCompareInfo), BorderLayout.SOUTH);
+        panel.setBorder(new LineBorder(backgroundColor, 3));
+        FrameMove move = new FrameMove(howCompareInfo);
+        howCompareInfo.addMouseListener(move);
+        howCompareInfo.addMouseMotionListener(move);
+        howCompareInfo.add(panel);
+        howCompareInfo.setVisible(false);
+    }
+
+    private JScrollPane addHowCompareDescription() {
+        JEditorPane pane = new JEditorPane();
+        JScrollPane jScrollPane = new JScrollPane(pane);
+        jScrollPane.setPreferredSize(new Dimension(550, 500));
+        pane.setEnabled(true);
+        pane.setContentType("text/html");
+        pane.setBackground(backgroundColor);
+        try {
+            pane.setPage(getClass().getResource("/howCompareInfo.html"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return jScrollPane;
+    }
+
+    private JPanel addExitButton(JFrame frame) {
+        JPanel panel = new JPanel();
+        JButton button = new JButton("Все понятно");
+        button.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setVisible(false);
+            }
+        });
+        panel.add(button);
+        panel.setBackground(backgroundColor);
+        return panel;
     }
 
     private void setColorForFields() {
@@ -300,54 +369,6 @@ public class GUI extends JFrame {
         }
     }
 
-    private void initHowCompareInfoFrame() {
-        howCompareInfo.setUndecorated(true);
-        int width = 750;
-        int height = 700;
-        howCompareInfo.setSize(width, height);
-        Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Dimension dimension = toolkit.getScreenSize();
-        howCompareInfo.setLocation(dimension.width / 2 - width / 2, dimension.height / 2 - height / 2);
-        JPanel panel = new JPanel(new BorderLayout());
-        panel.add(addHowCompareDescription(), BorderLayout.CENTER);
-        panel.add(addExitButton(howCompareInfo), BorderLayout.SOUTH);
-        panel.setBorder(new LineBorder(backgroundColor, 3));
-        FrameMove move = new FrameMove(howCompareInfo);
-        howCompareInfo.addMouseListener(move);
-        howCompareInfo.addMouseMotionListener(move);
-        howCompareInfo.add(panel);
-        howCompareInfo.setVisible(false);
-    }
-
-    private JScrollPane addHowCompareDescription() {
-        JEditorPane pane = new JEditorPane();
-        JScrollPane jScrollPane = new JScrollPane(pane);
-        jScrollPane.setPreferredSize(new Dimension(550,500));
-        pane.setEnabled(true);
-        pane.setContentType("text/html");
-        pane.setBackground(backgroundColor);
-        try {
-            pane.setPage(getClass().getResource("/howCompareInfo.html"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return jScrollPane;
-    }
-
-    private JPanel addExitButton(JFrame frame) {
-        JPanel panel = new JPanel();
-        JButton button = new JButton("Все понятно");
-        button.addActionListener(new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                frame.setVisible(false);
-            }
-        });
-        panel.add(button);
-        panel.setBackground(backgroundColor);
-        return panel;
-    }
-
     private JPanel getAppHeader() {
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -357,21 +378,21 @@ public class GUI extends JFrame {
         jsonLogoImg = new ImageIcon(newImg);
         JLabel jsonLogo = new JLabel(jsonLogoImg);
         jsonLogo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        jsonLogo.addMouseListener(new GitHubPageAction());
+        jsonLogo.addMouseListener(gitHubPageURL);
 
         ImageIcon gitHubLogoImg = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/github-logo.png")));
         image = gitHubLogoImg.getImage();
         newImg = image.getScaledInstance(40, 40,  java.awt.Image.SCALE_SMOOTH); // scale it the smooth way
         gitHubLogoImg = new ImageIcon(newImg);
         JLabel gitHubLogo = new JLabel(gitHubLogoImg);
-
         gitHubLogo.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        gitHubLogo.addMouseListener(new GitHubPageAction());
-        JLabel header = new JLabel("JSON Comparator");
+        gitHubLogo.addMouseListener(gitHubPageURL);
+
+        JLabel header = new JLabel(APP_NAME);
         header.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        header.addMouseListener(new GitHubPageAction());
+        header.addMouseListener(gitHubPageURL);
         header.setFont(new Font(configuration.getFontName(), Font.BOLD, 24));
-        header.setForeground(new Color(255, 141, 0));
+        header.setForeground(headerColor);
 
         JPanel buttonPane = new JPanel();
         buttonPane.setLayout(new BoxLayout(buttonPane, BoxLayout.X_AXIS));
@@ -387,7 +408,17 @@ public class GUI extends JFrame {
         panel.addMouseMotionListener(mouseAdapter);
         panel.addMouseListener(mouseAdapter);
         buttonPane.setBackground(panel.getBackground());
-        panel.setBorder(new EmptyBorder(3,0,3,3));
+        panel.setBorder(new EmptyBorder(3, 0, 3, 3));
+        return panel;
+    }
+
+    private JPanel getAppCenter() {
+        JPanel panel = new JPanel(new FlowLayout());
+        panel.setBackground(backgroundColor);
+        panel.setBorder(new EmptyBorder(10, 0, 0, 0));
+        addFilesFields(panel);
+        addCompareSettingsFields(panel);
+        addReportSettingsFields(panel);
         return panel;
     }
 
@@ -434,7 +465,7 @@ public class GUI extends JFrame {
     }
 
     private void addCompareSettingsFields(JPanel mainFrame) {
-        GridLayout layout = new GridLayout(6,1);
+        GridLayout layout = new GridLayout(6, 1);
         JPanel panel = new JPanel(layout);
 
         panel.add(getCompareKeysArrayPath());
@@ -445,7 +476,7 @@ public class GUI extends JFrame {
         panel.add(findDuplicatesInFiles);
 
         Border simpleBorder = BorderFactory.createEtchedBorder();
-        TitledBorder borderWithTitle = new TitledBorder(simpleBorder,"Настройки сравнения файлов");
+        TitledBorder borderWithTitle = new TitledBorder(simpleBorder, "Настройки сравнения файлов");
         borderWithTitle.setTitleColor(textColor);
         panel.setBorder(borderWithTitle);
         panel.setBackground(backgroundColor);
@@ -453,7 +484,7 @@ public class GUI extends JFrame {
     }
 
     private void addReportSettingsFields(JPanel mainFrame) {
-        GridLayout layout = new GridLayout(4,2);
+        GridLayout layout = new GridLayout(4, 2);
         JPanel panel = new JPanel(layout);
 
         panel.add(showFullyMatched);
@@ -466,7 +497,7 @@ public class GUI extends JFrame {
         panel.add(openResultAfterCompare);
 
         Border simpleBorder = BorderFactory.createEtchedBorder();
-        TitledBorder borderWithTitle = new TitledBorder(simpleBorder,"Настройки вывода результатов");
+        TitledBorder borderWithTitle = new TitledBorder(simpleBorder, "Настройки вывода результатов");
         borderWithTitle.setTitleColor(textColor);
         panel.setBorder(borderWithTitle);
         panel.setBackground(backgroundColor);
@@ -519,31 +550,13 @@ public class GUI extends JFrame {
         return commonPanel;
     }
 
-    private JFileChooser getFileFilterJSON() {
-        JFileChooser fc = new JFileChooser();
-        fc.setAcceptAllFileFilterUsed(false);
-        fc.setFileFilter(new FileFilter() {
-            @Override
-            public boolean accept(File f) {
-                return f.getName().toUpperCase().endsWith(".JSON") || f.isDirectory();
-            }
-
-            @Override
-            public String getDescription() {
-                return "JSON";
-            }
-        });
-        fc.setCurrentDirectory(new File("."));
-        return fc;
-    }
-
     private JPanel getFooterVersionAndLink() {
         JPanel panel = new JPanel(new BorderLayout());
         JPanel version = new JPanel();
         JPanel link = new JPanel();
         link.setLayout(new BorderLayout());
 
-        JLabel versionLabel = new JLabel("Версия JSON Comparator: " + configuration.getCurrentJsonComparatorVersion());
+        JLabel versionLabel = new JLabel("Версия " + APP_NAME + ": " + configuration.getCurrentJsonComparatorVersion());
         versionLabel.setFont(new Font(configuration.getFontName(), Font.BOLD, 14));
         versionLabel.setForeground(textColor);
         version.add(versionLabel);
@@ -553,27 +566,19 @@ public class GUI extends JFrame {
         linkLabel.setForeground(textColor);
         link.add(linkLabel, BorderLayout.NORTH);
 
-        JLabel URLLabel = new JLabel("GitHub.com/ShamilAbd/JSONComparator");
-        URLLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-        URLLabel.addMouseListener(new GitHubPageAction());
-        URLLabel.setFont(new Font(configuration.getFontName(), Font.BOLD, 12));
-        URLLabel.setForeground(linkColor);
-        link.add(URLLabel, BorderLayout.SOUTH);
+        JLabel urlLabel = new JLabel("GitHub.com/ShamilAbd/JSONComparator");
+        urlLabel.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        urlLabel.addMouseListener(gitHubPageURL);
+        urlLabel.setFont(new Font(configuration.getFontName(), Font.BOLD, 12));
+        urlLabel.setForeground(linkColor);
+        link.add(urlLabel, BorderLayout.SOUTH);
 
         panel.add(version, BorderLayout.WEST);
         panel.add(link, BorderLayout.EAST);
         link.setBackground(footerBackgroundColor);
         version.setBackground(footerBackgroundColor);
         panel.setBackground(footerBackgroundColor);
-        panel.setBorder(new EmptyBorder(5,3,5,10));
+        panel.setBorder(new EmptyBorder(5, 3, 5, 10));
         return panel;
-    }
-
-    public static void main(String[] args) {
-        try {
-            new GUI();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

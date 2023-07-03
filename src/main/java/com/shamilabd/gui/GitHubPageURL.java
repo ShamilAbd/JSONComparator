@@ -1,4 +1,4 @@
-package com.shamilabd;
+package com.shamilabd.gui;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -7,13 +7,13 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-public class GitHubPageAction extends MouseAdapter {
+public class GitHubPageURL extends MouseAdapter {
     @Override
-    public void mouseClicked(MouseEvent e) {
+    public void mouseClicked(MouseEvent event) {
         try {
             Desktop.getDesktop().browse(new URI("https://github.com/ShamilAbd/JSONComparator"));
-        } catch (IOException | URISyntaxException e1) {
-            e1.printStackTrace();
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
         }
     }
 }

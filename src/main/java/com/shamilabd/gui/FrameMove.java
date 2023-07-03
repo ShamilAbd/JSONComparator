@@ -1,11 +1,11 @@
-package com.shamilabd;
+package com.shamilabd.gui;
 
 import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class FrameMove extends MouseAdapter {
-    private JFrame jFrame;
+    private final JFrame jFrame;
     private int x;
     private int y;
 
