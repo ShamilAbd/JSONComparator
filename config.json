@@ -16,5 +16,8 @@
   "firstFilePath": "C:\\SomeDirectoryPath\\jsonForCompare\\test_1.json",
   "showPartialMatched": true,
   "findDuplicatesInFiles": true,
-  "compareKeys": ["name", "key"]
+  "compareKeys": [
+    "name",
+    "key"
+  ]
 }
