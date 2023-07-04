@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Configuration {
+    private static Configuration configuration;
     private final String configFileName = "config.json";
     private final String currentJsonComparatorVersion = "1.0";
     private final File config = new File(configFileName);
@@ -33,7 +34,7 @@ public class Configuration {
     private Boolean trimText;
     private int leftIndentsInObject;
 
-    public Configuration() throws IOException {
+    private Configuration() throws IOException {
         if (!config.exists()) {
             createConfigExample();
         }
@@ -44,6 +45,13 @@ public class Configuration {
         }
         checkConfigVersionCompatibility();
         loadParameters();
+    }
+
+    public static Configuration getInstance() throws IOException {
+        if (configuration == null) {
+            configuration = new Configuration();
+        }
+        return configuration;
     }
 
     public static void main(String[] args) throws IOException {
@@ -74,7 +82,7 @@ public class Configuration {
         String text = "{"
                 + "  \"showFullyMatched\": true,"
                 + "  \"addCommaBetweenObjects\": true,"
-                + "  \"configFileVersion\": \"1.0\","
+                + "  \"configFileVersion\": \"1.1\","
                 + "  \"showOnlyCompareKeys\": false,"
                 + "  \"addRowNumber\": false,"
                 + "  \"openResultAfterCompare\": true,"

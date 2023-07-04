@@ -31,7 +31,7 @@ public class JSONComparator {
     public static void main(String[] args) {
         Configuration configuration;
         try {
-            configuration = new Configuration();
+            configuration = Configuration.getInstance();
             JSONComparator comparator = new JSONComparator(configuration);
             comparator.compare();
             comparator.clear();

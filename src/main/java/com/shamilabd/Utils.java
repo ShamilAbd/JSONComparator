@@ -1,5 +1,7 @@
 package com.shamilabd;
 
+import com.shamilabd.gui.GUICommon;
+
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -40,9 +42,9 @@ public class Utils {
     }
 
     public static void saveResources(String folder) throws Exception {
-        Utils.exportResource("/json-logo.png", folder);
-        Utils.exportResource("/github-logo.png", folder);
-        Utils.exportResource("/style.css", folder);
+        Utils.exportResource(GUICommon.JSON_LOGO_PATH, folder);
+        Utils.exportResource(GUICommon.GITHUB_LOGO_PATH, folder);
+        Utils.exportResource(GUICommon.STYLES_PATH, folder);
     }
 
     public static String getCurrentDateTime() {

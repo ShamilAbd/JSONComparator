@@ -1,11 +1,7 @@
 package com.shamilabd.gui;
 
-import com.shamilabd.Configuration;
-
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.TitledBorder;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.io.File;
@@ -13,45 +9,43 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class GUIContent {
+public class GUIContent extends GUICommon {
     private final JFrame mainFrame;
-    private final Configuration configuration;
 
-    private final Color backgroundColor;
-    private final Color textColor;
-    private final Color textFieldBackgroundColor = new Color(180, 180, 180);
-
+    private final JLabel file1Label = new JLabel("Первый файл: ");
+    private final JLabel file2Label = new JLabel("Второй файл: ");
     private final JTextField file1Path = new JTextField(38);
     private final JTextField file2Path = new JTextField(38);
     private final JButton choice1File = new JButton("Выбрать");
     private final JButton choice2File = new JButton("Выбрать");
 
+    private final JTextField compareKeysArrayPath = new JTextField(36);
+    private final JTextField compareKeys = new JTextField(42);
     private final JCheckBox nullAsNotEqual = new JCheckBox("Сравнение с NULL всегда \"не равно\"");
     private final JCheckBox ignoreCase = new JCheckBox("Сравнивать без учета регистра");
     private final JCheckBox trimText = new JCheckBox("При сравнении обрезать пробелы по краям");
+    private final JCheckBox findDuplicatesInFiles = new JCheckBox("Найти и вывести дубликаты в файлах");
     private final JCheckBox showFullyMatched = new JCheckBox("Вывести полностью совпавшие элементы");
     private final JCheckBox showPartialMatched = new JCheckBox("Вывести частично совпавшие элементы");
     private final JCheckBox showNotMatched = new JCheckBox("Вывести не совпавшие элементы");
+    private final JTextField leftIndentsInObject = new JTextField(12);
     private final JCheckBox showOnlyCompareKeys = new JCheckBox("Отчет только по сравниваемым ключам");
-    private final JCheckBox openResultAfterCompare = new JCheckBox("После сравнения открыть файл с результатами");
     private final JCheckBox addRowNumber = new JCheckBox("Добавить номера объектам");
     private final JCheckBox addCommaBetweenObjects = new JCheckBox("Добавить запятые между объектами");
-    private final JCheckBox findDuplicatesInFiles = new JCheckBox("Найти и вывести дубликаты в файлах");
-    private final JTextField leftIndentsInObject = new JTextField(12);
-    private final JTextField compareKeysArrayPath = new JTextField(36);
-    private final JTextField compareKeys = new JTextField(42);
+    private final JCheckBox openResultAfterCompare = new JCheckBox("После сравнения открыть файл с результатами");
 
-    public GUIContent(JFrame jFrame, Configuration configuration, Color backgroundColor, Color textColor) {
+    private final Color textFieldBackgroundColor = new Color(180, 180, 180);
+    private final Insets leftMarginForTextField = new Insets(0, 3, 0, 0);
+    private final Insets buttonInsets = new Insets(0, 11, 0, 11);
+
+    public GUIContent(JFrame jFrame) {
         mainFrame = jFrame;
-        this.configuration = configuration;
-        this.backgroundColor = backgroundColor;
-        this.textColor = textColor;
         initVariables();
     }
 
     public JPanel getContent() {
         JPanel panel = new JPanel(new FlowLayout());
-        panel.setBackground(backgroundColor);
+        panel.setBackground(BACKGROUND_COLOR);
         panel.setBorder(new EmptyBorder(10, 0, 0, 0));
         addFilesFields(panel);
         addCompareSettingsFields(panel);
@@ -61,6 +55,7 @@ public class GUIContent {
 
     private void initVariables() {
         setValuesFromConfig();
+        setMargins();
         setListenerForCheckBox();
         setListenerForButtons();
         setColorForFields();
@@ -80,9 +75,19 @@ public class GUIContent {
         addRowNumber.setSelected(configuration.getAddRowNumber());
         addCommaBetweenObjects.setSelected(configuration.getAddCommaBetweenObjects());
         findDuplicatesInFiles.setSelected(configuration.getFindDuplicatesInFiles());
-        leftIndentsInObject.setText(String.valueOf(configuration.getLeftIndentsInObject()));
         compareKeysArrayPath.setText(configuration.getCompareKeysArrayPath());
         compareKeys.setText(configuration.getCompareKeysForPrint());
+        leftIndentsInObject.setText(String.valueOf(configuration.getLeftIndentsInObject()));
+    }
+
+    private void setMargins() {
+        leftIndentsInObject.setMargin(leftMarginForTextField);
+        file1Path.setMargin(leftMarginForTextField);
+        file2Path.setMargin(leftMarginForTextField);
+        compareKeysArrayPath.setMargin(leftMarginForTextField);
+        compareKeys.setMargin(leftMarginForTextField);
+        choice1File.setMargin(buttonInsets);
+        choice2File.setMargin(buttonInsets);
     }
 
     private void setListenerForCheckBox() {
@@ -111,8 +116,8 @@ public class GUIContent {
     }
 
     private void setListenerForButtons() {
+        JFileChooser fc = getFileFilterJSON();
         choice1File.addActionListener((actionEvent) -> {
-            JFileChooser fc = getFileFilterJSON();
             if (fc.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION) {
                 File file = fc.getSelectedFile();
                 file1Path.setText(file.getAbsoluteFile().getAbsolutePath());
@@ -120,7 +125,6 @@ public class GUIContent {
             }
         });
         choice2File.addActionListener((actionEvent) -> {
-            JFileChooser fc = getFileFilterJSON();
             if (fc.showOpenDialog(mainFrame) == JFileChooser.APPROVE_OPTION) {
                 File file = fc.getSelectedFile();
                 file2Path.setText(file.getAbsoluteFile().getAbsolutePath());
@@ -130,6 +134,8 @@ public class GUIContent {
     }
 
     private void setColorForFields() {
+        setColorAndBackgroundForElement(file1Label);
+        setColorAndBackgroundForElement(file2Label);
         setColorAndBackgroundForElement(nullAsNotEqual);
         setColorAndBackgroundForElement(ignoreCase);
         setColorAndBackgroundForElement(trimText);
@@ -152,8 +158,8 @@ public class GUIContent {
         if (component instanceof JTextField) {
             component.setBackground(textFieldBackgroundColor);
         } else {
-            component.setBackground(backgroundColor);
-            component.setForeground(textColor);
+            component.setBackground(BACKGROUND_COLOR);
+            component.setForeground(TEXT_COLOR);
         }
     }
 
@@ -178,62 +184,47 @@ public class GUIContent {
     private void addFilesFields(JPanel mainFrame) {
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.weightx = 0.5;
+        constraints.insets = new Insets(5, 2, 2, 5);
         constraints.gridy = 0;
         constraints.gridx = 0;
-
-        Insets betweenFilesSpace = new Insets(5, 2, 2, 5);
-        constraints.insets = betweenFilesSpace;
-
-        JLabel file1Label = new JLabel("Первый файл: ");
-        JLabel file2Label = new JLabel("Второй файл: ");
-        file1Label.setForeground(textColor);
-        file2Label.setForeground(textColor);
         panel.add(file1Label, constraints);
-
         constraints.gridx = 1;
         panel.add(file1Path, constraints);
         constraints.gridx = 2;
-        constraints.weighty   = 1.0;
         panel.add(choice1File, constraints);
 
-        constraints.insets = betweenFilesSpace;
         constraints.gridx = 0;
         constraints.gridy = 1;
         panel.add(file2Label, constraints);
-
         constraints.gridx = 1;
         panel.add(file2Path, constraints);
         constraints.gridx = 2;
-        constraints.weighty = 1.0;
         panel.add(choice2File, constraints);
 
-        Border simpleBorder = BorderFactory.createEtchedBorder();
-        TitledBorder borderWithTitle = new TitledBorder(simpleBorder, "Файлы JSON для сравнения");
-        borderWithTitle.setTitleColor(textColor);
-        panel.setBorder(borderWithTitle);
-        panel.setBackground(backgroundColor);
+        panel.setBorder(new TitledBorder("Файлы JSON для сравнения").paintBorderAndText(textFont));
+        panel.setBackground(BACKGROUND_COLOR);
         mainFrame.add(panel);
     }
 
     private void addCompareSettingsFields(JPanel mainFrame) {
-        GridLayout layout = new GridLayout(6, 1);
-        JPanel panel = new JPanel(layout);
-
-        panel.add(getCompareKeysArrayPathWithLabel());
-        panel.add(getCompareKeysWithLabel());
-        panel.add(nullAsNotEqual);
-        panel.add(ignoreCase);
-        panel.add(trimText);
-        panel.add(findDuplicatesInFiles);
-
-        Border simpleBorder = BorderFactory.createEtchedBorder();
-        TitledBorder borderWithTitle = new TitledBorder(simpleBorder, "Настройки сравнения файлов");
-        borderWithTitle.setTitleColor(textColor);
-        panel.setBorder(borderWithTitle);
-        panel.setBackground(backgroundColor);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.add(getCompareKeysArrayPathWithLabel(), BorderLayout.NORTH);
+        panel.add(getCompareKeysWithLabel(), BorderLayout.CENTER);
+        panel.add(getPanelWithCompareSettingsFlags(), BorderLayout.SOUTH);
+        panel.setBorder(new TitledBorder("Настройки сравнения файлов").paintBorderAndText(textFont));
+        panel.setBackground(BACKGROUND_COLOR);
         mainFrame.add(panel);
+    }
+
+    private JPanel getPanelWithCompareSettingsFlags() {
+        GridLayout layout = new GridLayout(2, 2);
+        JPanel panel = new JPanel(layout);
+        panel.add(findDuplicatesInFiles);
+        panel.add(ignoreCase);
+        panel.add(nullAsNotEqual);
+        panel.add(trimText);
+        panel.setBackground(BACKGROUND_COLOR);
+        return panel;
     }
 
     private JPanel getCompareKeysArrayPathWithLabel() {
@@ -257,11 +248,8 @@ public class GUIContent {
         panel.add(getLeftIndentsInObjectWithLabel());
         panel.add(openResultAfterCompare);
 
-        Border simpleBorder = BorderFactory.createEtchedBorder();
-        TitledBorder borderWithTitle = new TitledBorder(simpleBorder, "Настройки вывода результатов");
-        borderWithTitle.setTitleColor(textColor);
-        panel.setBorder(borderWithTitle);
-        panel.setBackground(backgroundColor);
+        panel.setBorder(new TitledBorder("Настройки вывода результатов").paintBorderAndText(textFont));
+        panel.setBackground(BACKGROUND_COLOR);
         mainFrame.add(panel);
     }
 
@@ -272,10 +260,10 @@ public class GUIContent {
     private JPanel getLabelAndTextField(String label, JTextField field) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel description = new JLabel(label);
-        description.setForeground(textColor);
+        description.setForeground(TEXT_COLOR);
         panel.add(description);
         panel.add(field);
-        panel.setBackground(backgroundColor);
+        panel.setBackground(BACKGROUND_COLOR);
         return panel;
     }
 

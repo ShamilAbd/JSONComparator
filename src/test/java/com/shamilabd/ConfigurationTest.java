@@ -13,7 +13,7 @@ public class ConfigurationTest {
     @BeforeEach
     void setUp() {
         try {
-            configuration = new Configuration();
+            configuration = Configuration.getInstance();
         } catch (IOException e) {
             e.printStackTrace();
         }

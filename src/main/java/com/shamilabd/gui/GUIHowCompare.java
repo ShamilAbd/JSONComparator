@@ -5,10 +5,9 @@ import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.io.IOException;
 
-public class GUIHowCompare extends JFrame {
+public class GUIHowCompare extends GUICommon {
     public static final int FRAME_WIDTH = 750;
     public static final int FRAME_HEIGHT = 700;
-    public static final String HOW_COMPARE_INFO_PAGE_PATH = "/howCompareInfo.html";
     public static final int FRAME_BORDER_THICKNESS = 3;
     private final JButton closeFrame = new JButton("Все понятно");
     private final Color backgroundColor;
@@ -62,6 +61,7 @@ public class GUIHowCompare extends JFrame {
 
     private JPanel addCloseButton() {
         JPanel panel = new JPanel();
+        closeFrame.setFont(textFont);
         panel.add(closeFrame);
         panel.setBackground(backgroundColor);
         return panel;

@@ -31,7 +31,7 @@ public class HTML {
         Utils.saveResources(directory.getAbsolutePath());
     }
 
-    public String getHTMLContent() {
+    private String getHTMLContent() {
         return    "<!Doctype html>"
                 + "<html lang=\"ru\">"
                 + "     <head>"
