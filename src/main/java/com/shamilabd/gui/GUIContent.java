@@ -18,6 +18,10 @@ public class GUIContent extends GUICommon {
     private final JTextField file2Path = new JTextField(38);
     private final JButton choice1File = new JButton("Выбрать");
     private final JButton choice2File = new JButton("Выбрать");
+    private final JLabel charactersLabel = new JLabel("Кодировка файлов: ");
+    private final JRadioButton win1251 = new JRadioButton("Windows-1251");
+    private final JRadioButton utf8 = new JRadioButton("UTF-8");
+    private final ButtonGroup charactersGroup = new ButtonGroup();
 
     private final JTextField compareKeysArrayPath = new JTextField(36);
     private final JTextField compareKeys = new JTextField(42);
@@ -58,6 +62,7 @@ public class GUIContent extends GUICommon {
         setMargins();
         setListenerForCheckBox();
         setListenerForButtons();
+        setListenerForRadioButtons();
         setColorForFields();
     }
 
@@ -133,6 +138,11 @@ public class GUIContent extends GUICommon {
         });
     }
 
+    private void setListenerForRadioButtons() {
+        win1251.addActionListener((e -> configuration.setCharsetName("windows-1251")));
+        utf8.addActionListener((e -> configuration.setCharsetName("UTF-8")));
+    }
+
     private void setColorForFields() {
         setColorAndBackgroundForElement(file1Label);
         setColorAndBackgroundForElement(file2Label);
@@ -201,9 +211,32 @@ public class GUIContent extends GUICommon {
         constraints.gridx = 2;
         panel.add(choice2File, constraints);
 
+        constraints.gridx = 0;
+        constraints.gridy = 2;
+        constraints.gridwidth = 2;
+        constraints.anchor = GridBagConstraints.WEST;
+        panel.add(getCharactersPanel(), constraints);
+
         panel.setBorder(new TitledBorder("Файлы JSON для сравнения").paintBorderAndText(textFont));
         panel.setBackground(BACKGROUND_COLOR);
         mainFrame.add(panel);
+    }
+
+    private JPanel getCharactersPanel() {
+        JPanel panel = new JPanel();
+        charactersGroup.add(win1251);
+        charactersGroup.add(utf8);
+        win1251.setSelected(true);
+        win1251.setForeground(TEXT_COLOR);
+        utf8.setForeground(TEXT_COLOR);
+        charactersLabel.setForeground(TEXT_COLOR);
+        win1251.setBackground(BACKGROUND_COLOR);
+        utf8.setBackground(BACKGROUND_COLOR);
+        panel.setBackground(BACKGROUND_COLOR);
+        panel.add(charactersLabel);
+        panel.add(win1251);
+        panel.add(utf8);
+        return panel;
     }
 
     private void addCompareSettingsFields(JPanel mainFrame) {

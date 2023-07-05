@@ -19,5 +19,6 @@
   "compareKeys": [
     "name",
     "key"
-  ]
+  ],
+  "charsetName": "windows-1251"
 }

@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.*;
 
 public class HTML {
@@ -27,7 +28,7 @@ public class HTML {
                 throw new RuntimeException("Не удалось создать папку для хранения результатов сравнения");
             }
         }
-        Utils.saveInFile(htmlFile.getAbsolutePath(), getHTMLContent());
+        Utils.saveInFile(htmlFile.getAbsolutePath(), getHTMLContent(), Charset.forName(configuration.getCharsetName()));
         Utils.saveResources(directory.getAbsolutePath());
     }
 
@@ -36,7 +37,7 @@ public class HTML {
                 + "<html lang=\"ru\">"
                 + "     <head>"
                 + "         <title>JSONComparator</title>"
-                + "         <meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"
+                + "         <meta http-equiv=\"Content-Type\" content=\"text/html; charset=" + configuration.getCharsetName() + "\" />"
                 + "          <meta name=\"Author\" content=\"Shamil Abdullin\">"
                 + "           <link rel=\"stylesheet\" type=\"text/css\" href=\"style.css\">"
                 + "       </head>"

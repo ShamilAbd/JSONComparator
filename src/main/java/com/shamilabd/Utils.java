@@ -9,9 +9,9 @@ import java.util.Date;
 
 public class Utils {
 
-    public static String readFile(String filePath) throws IOException {
+    public static String readFile(String filePath, Charset charset) throws IOException {
         StringBuilder builder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath, Charset.forName("UTF8")))) {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), charset))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 builder.append(line).append("\n");
@@ -23,19 +23,19 @@ public class Utils {
         return builder.toString();
     }
 
-    public static void openFileInSystem(String filePath) throws IOException {
-        File file = new File(filePath);
-        try {
-            java.awt.Desktop.getDesktop().open(file);
+    public static void saveInFile(String path, String content, Charset charset) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(path), charset))) {
+            writer.write(content);
         } catch (IOException e) {
             e.printStackTrace();
             throw e;
         }
     }
 
-    public static void saveInFile(String path, String content) throws IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path, Charset.forName("UTF8")))) {
-            writer.write(content);
+    public static void openFileInSystem(String filePath) throws IOException {
+        File file = new File(filePath);
+        try {
+            java.awt.Desktop.getDesktop().open(file);
         } catch (IOException e) {
             e.printStackTrace();
             throw e;

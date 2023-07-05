@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -115,7 +116,7 @@ public class JSONComparator {
     }
 
     public void fillJSONList(String jsonFilePath, String pathToJSONArray, List<JSONObject> listForJSONObjects) throws IOException {
-        String jsonText = Utils.readFile(jsonFilePath);
+        String jsonText = Utils.readFile(jsonFilePath, Charset.forName(configuration.getCharsetName()));
         JSONArray values;
         try {
             if (configuration.getCompareKeysArrayPath().equals("")) {

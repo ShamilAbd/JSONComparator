@@ -6,6 +6,7 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,6 +21,7 @@ public class Configuration {
     private String compareKeysArrayPath;
     private List<String> compareKeys = new ArrayList<>();
     private String fontName;
+    private String charsetName;
     private String configFileVersion;
     private Boolean nullAsNotEqual;
     private Boolean showFullyMatched;
@@ -39,7 +41,7 @@ public class Configuration {
             createConfigExample();
         }
         try {
-            rootJSON = new JSONObject(Utils.readFile(config.getAbsolutePath()));
+            rootJSON = new JSONObject(Utils.readFile(config.getAbsolutePath(), StandardCharsets.UTF_8));
         } catch (JSONException e) {
             throw new RuntimeException("Ошибка в заполнении \"" + configFileName + "\": " + e.getMessage());
         }
@@ -76,6 +78,8 @@ public class Configuration {
         System.out.println("TrimText : " + configuration.getTrimText());
         System.out.println("CurrentJsonComparatorVersion : " + configuration.getCurrentJsonComparatorVersion());
         System.out.println("LeftIndentsInObject : " + configuration.getLeftIndentsInObject());
+        System.out.println("FontName : " + configuration.getFontName());
+        System.out.println("CharsetName : " + configuration.getCharsetName());
     }
 
     private void createConfigExample() throws IOException {
@@ -91,6 +95,7 @@ public class Configuration {
                 + "  \"leftIndentsInObject\": 2,"
                 + "  \"showNotMatched\": true,"
                 + "  \"fontName\": \"Yu Gothic UI Semibold\","
+                + "  \"charsetName\": \"windows-1251\","
                 + "  \"compareKeysArrayPath\": \"SomeKey.KeyWithArray\","
                 + "  \"ignoreCase\": false,"
                 + "  \"nullAsNotEqual\": false,"
@@ -99,7 +104,7 @@ public class Configuration {
                 + "  \"findDuplicatesInFiles\": true,"
                 + "  \"compareKeys\": [\"name\", \"key\"]"
                 + "}";
-        Utils.saveInFile(config.getAbsolutePath(), text);
+        Utils.saveInFile(config.getAbsolutePath(), text, StandardCharsets.UTF_8);
     }
 
     private void checkConfigVersionCompatibility() {
@@ -120,6 +125,7 @@ public class Configuration {
         firstFilePath = rootJSON.optString("firstFilePath", "");
         secondFilePath = rootJSON.optString("secondFilePath", "");
         fontName = rootJSON.getString("fontName");
+        charsetName = rootJSON.optString("charsetName", "windows-1251");
         if (rootJSON.isNull("compareKeysArrayPath")) {
             compareKeysArrayPath = "";
         } else {
@@ -256,7 +262,17 @@ public class Configuration {
         rootJSON.put("trimText", trimText);
         rootJSON.put("leftIndentsInObject", leftIndentsInObject);
         rootJSON.put("configFileVersion", configFileVersion);
-        Utils.saveInFile(configFileName, rootJSON.toString(2));
+        rootJSON.put("charsetName", charsetName);
+        rootJSON.put("fontName", fontName);
+        Utils.saveInFile(configFileName, rootJSON.toString(2), StandardCharsets.UTF_8);
+    }
+
+    public String getCharsetName() {
+        return charsetName;
+    }
+
+    public void setCharsetName(String charsetName) {
+        this.charsetName = charsetName;
     }
 
     public void setFirstFilePath(String firstFilePath) {

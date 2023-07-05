@@ -6,7 +6,7 @@ import java.util.Objects;
 
 public class GUI extends GUICommon {
     public static final int APP_WIDTH = 660;
-    public static final int APP_HEIGHT = 550;
+    public static final int APP_HEIGHT = 585;
 
     public GUI() throws HeadlessException {
         GUIFooter footer = null;
@@ -32,7 +32,6 @@ public class GUI extends GUICommon {
             new GUI();
         } catch (Exception e) {
             e.printStackTrace();
-            // TODO: добавить логирование
         }
     }
 
