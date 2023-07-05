@@ -1,7 +1,7 @@
 {
   "showFullyMatched": true,
   "addCommaBetweenObjects": true,
-  "configFileVersion": "1.0",
+  "configFileVersion": "1.1",
   "showOnlyCompareKeys": false,
   "addRowNumber": false,
   "openResultAfterCompare": true,

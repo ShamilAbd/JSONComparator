@@ -1,7 +1,6 @@
 package com.shamilabd;
 
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.Test;
 
 public class UtilsTest {
 

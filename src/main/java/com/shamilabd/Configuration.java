@@ -12,7 +12,7 @@ import java.util.List;
 public class Configuration {
     private static Configuration configuration;
     private final String configFileName = "config.json";
-    private final String currentJsonComparatorVersion = "1.0";
+    private final String currentJsonComparatorVersion = "1.1";
     private final File config = new File(configFileName);
     private final JSONObject rootJSON;
     private String firstFilePath;

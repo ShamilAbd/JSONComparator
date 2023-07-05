@@ -3,6 +3,7 @@ package com.shamilabd;
 import com.shamilabd.gui.GUICommon;
 
 import java.io.*;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -10,7 +11,7 @@ public class Utils {
 
     public static String readFile(String filePath) throws IOException {
         StringBuilder builder = new StringBuilder();
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath, Charset.forName("UTF8")))) {
             String line;
             while ((line = reader.readLine()) != null) {
                 builder.append(line).append("\n");
@@ -33,7 +34,7 @@ public class Utils {
     }
 
     public static void saveInFile(String path, String content) throws IOException {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path))) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(path, Charset.forName("UTF8")))) {
             writer.write(content);
         } catch (IOException e) {
             e.printStackTrace();

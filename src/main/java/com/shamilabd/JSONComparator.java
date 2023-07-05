@@ -166,12 +166,12 @@ public class JSONComparator {
 
     private void findDuplicates(List<JSONObject> objects, Set<JSONObject> duplicates) {
         for (int i = 0; i < objects.size(); i++) {
-            JSONObject object = objects.get(i);
+            JSONObject currentElement = objects.get(i);
             for (int j = i + 1; j < objects.size(); j++) {
-                JSONObject object2 = objects.get(j);
-                if (object.toString().equals(object2.toString())) {
-                    duplicates.add(object);
-                    duplicates.add(object2);
+                JSONObject nextElement = objects.get(j);
+                if (currentElement.toString().equals(nextElement.toString())) {
+                    duplicates.add(currentElement);
+                    duplicates.add(nextElement);
                 }
             }
         }
@@ -191,16 +191,8 @@ public class JSONComparator {
                         continue SECOND_LIST;
                     }
                     if (first.get(key) instanceof String && second.get(key) instanceof String) {
-                        String firstVal = (String) first.get(key);
-                        String secondVal = (String) second.get(key);
-                        if (trimText) {
-                            firstVal = firstVal.trim();
-                            secondVal = secondVal.trim();
-                        }
-                        if (ignoreCase) {
-                            firstVal = firstVal.toUpperCase();
-                            secondVal = secondVal.toUpperCase();
-                        }
+                        String firstVal = getTextIfNeedTrimmedAndIgnoredCase(first.get(key), trimText, ignoreCase);
+                        String secondVal = getTextIfNeedTrimmedAndIgnoredCase(second.get(key), trimText, ignoreCase);
                         if (!firstVal.equals(secondVal)) {
                             continue SECOND_LIST;
                         }
@@ -214,6 +206,17 @@ public class JSONComparator {
             }
         }
         firstList.removeAll(matchedFirst);
+    }
+
+    private String getTextIfNeedTrimmedAndIgnoredCase(Object o, boolean trimText, boolean ignoreCase) {
+        String text = o.toString();
+        if (trimText) {
+            text = text.trim();
+        }
+        if (ignoreCase) {
+            text = text.toUpperCase();
+        }
+        return text;
     }
 
     private void findHalfMatch() {
@@ -238,8 +241,8 @@ public class JSONComparator {
                 if (halfEquals) {
                     halfMatchedFirst.add(mainObj);
                     halfMatchedSecond.add(compareObj);
-                    secondList.remove(compareObj);
                     firstList.remove(mainObj);
+                    secondList.remove(compareObj);
                 }
             }
         }
@@ -260,39 +263,18 @@ public class JSONComparator {
 
         if (nullAsNotEqual) {
             if (!mainObj.isNull(key) && !compareObj.isNull(key)) {
-                if (mainObj.get(key) instanceof String && compareObj.get(key) instanceof String) {
-                    String firstVal = (String) mainObj.get(key);
-                    String secondVal = (String) compareObj.get(key);
-                    if (trimText) {
-                        firstVal = firstVal.trim();
-                        secondVal = secondVal.trim();
-                    }
-                    if (ignoreCase) {
-                        firstVal = firstVal.toUpperCase();
-                        secondVal = secondVal.toUpperCase();
-                    }
-                    if (firstVal.equals(secondVal)) {
-                        if (!halfEquals) {
-                            halfEquals = true;
-                        }
-                    }
-                } else if (mainObj.get(key).equals(compareObj.get(key))) {
-                    if (!halfEquals) {
-                        halfEquals = true;
-                    }
-                }
+                halfEquals = checkKeysForEquals(mainObj, compareObj, key, trimText, ignoreCase, halfEquals);
             }
-        } else if (mainObj.get(key) instanceof String && compareObj.get(key) instanceof String) {
-            String firstVal = (String) mainObj.get(key);
-            String secondVal = (String) compareObj.get(key);
-            if (trimText) {
-                firstVal = firstVal.trim();
-                secondVal = secondVal.trim();
-            }
-            if (ignoreCase) {
-                firstVal = firstVal.toUpperCase();
-                secondVal = secondVal.toUpperCase();
-            }
+        } else {
+            halfEquals = checkKeysForEquals(mainObj, compareObj, key, trimText, ignoreCase, halfEquals);
+        }
+        return halfEquals;
+    }
+
+    private boolean checkKeysForEquals(JSONObject mainObj, JSONObject compareObj, String key, boolean trimText, boolean ignoreCase,  boolean halfEquals) {
+        if (mainObj.get(key) instanceof String && compareObj.get(key) instanceof String) {
+            String firstVal = getTextIfNeedTrimmedAndIgnoredCase(mainObj.get(key), trimText, ignoreCase);
+            String secondVal = getTextIfNeedTrimmedAndIgnoredCase(compareObj.get(key), trimText, ignoreCase);
             if (firstVal.equals(secondVal)) {
                 if (!halfEquals) {
                     halfEquals = true;
@@ -315,8 +297,8 @@ public class JSONComparator {
                 break;
             }
 
-            List<JSONObject> halfMatchedFirstCopy = new ArrayList<>(halfMatchedSecond);
-            for (JSONObject compareObj : halfMatchedFirstCopy) {
+            List<JSONObject> halfMatchedSecondCopy = new ArrayList<>(halfMatchedSecond);
+            for (JSONObject compareObj : halfMatchedSecondCopy) {
                 halfEquals = false;
                 for (String key : configuration.getCompareKeys()) {
                     halfEquals = isHalfEquals(halfEquals, mainObj, compareObj, key);
