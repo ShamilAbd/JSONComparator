@@ -83,6 +83,13 @@ public class GUIContent extends GUICommon {
         compareKeysArrayPath.setText(configuration.getCompareKeysArrayPath());
         compareKeys.setText(configuration.getCompareKeysForPrint());
         leftIndentsInObject.setText(String.valueOf(configuration.getLeftIndentsInObject()));
+        if (configuration.getCharsetName().equals("windows-1251")) {
+            win1251.setSelected(true);
+            utf8.setSelected(false);
+        } else {
+            win1251.setSelected(false);
+            utf8.setSelected(true);
+        }
     }
 
     private void setMargins() {
@@ -226,7 +233,6 @@ public class GUIContent extends GUICommon {
         JPanel panel = new JPanel();
         charactersGroup.add(win1251);
         charactersGroup.add(utf8);
-        win1251.setSelected(true);
         win1251.setForeground(TEXT_COLOR);
         utf8.setForeground(TEXT_COLOR);
         charactersLabel.setForeground(TEXT_COLOR);
