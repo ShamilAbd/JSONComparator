@@ -13,7 +13,7 @@ import java.util.List;
 public class Configuration {
     private static Configuration configuration;
     private final String configFileName = "config.json";
-    private final String currentJsonComparatorVersion = "1.1";
+    private final String currentJsonComparatorVersion = "1.2";
     private final File config = new File(configFileName);
     private final JSONObject rootJSON;
     private String firstFilePath;
@@ -86,7 +86,7 @@ public class Configuration {
         String text = "{"
                 + "  \"showFullyMatched\": true,"
                 + "  \"addCommaBetweenObjects\": true,"
-                + "  \"configFileVersion\": \"1.1\","
+                + "  \"configFileVersion\": \"1.2\","
                 + "  \"showOnlyCompareKeys\": false,"
                 + "  \"addRowNumber\": false,"
                 + "  \"openResultAfterCompare\": true,"
